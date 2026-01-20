@@ -30,7 +30,7 @@ const SellAgent = () => {
     }
 
     // Create the agent listing
-    const newAgent = userDataService.addListing(user.id, {
+    userDataService.addListing(user.id, {
       name: formData.name,
       description: formData.description,
       longDescription: formData.longDescription,
@@ -49,6 +49,9 @@ const SellAgent = () => {
       image: 'https://images.unsplash.com/photo-1677442136019-21780ecad995?w=800&h=600&fit=crop',
       apiAccess: true,
       dateAdded: new Date().toISOString(),
+      rating: 0,
+      reviews: 0,
+      sales: 0,
     });
 
     alert('Agent submitted for review! We will contact you within 24 hours.');

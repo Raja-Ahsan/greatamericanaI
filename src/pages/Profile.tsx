@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { User, Mail, MapPin, Calendar, Edit2, Save } from 'lucide-react';
+import { User, Mail, Calendar, Edit2, Save } from 'lucide-react';
 import { useStore } from '../store/useStore';
 import { userDataService } from '../services/userDataService';
 

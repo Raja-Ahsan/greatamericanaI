@@ -112,7 +112,6 @@ class UserDataService {
   // User Stats
   getStats(userId: string): UserStats {
     const listings = this.getListings(userId);
-    const purchases = this.getPurchases(userId);
     
     const activeListings = listings.filter(l => l.status === 'active').length;
     const totalSales = listings.reduce((sum, l) => sum + l.sales, 0);
