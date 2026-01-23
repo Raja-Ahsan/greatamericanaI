@@ -1,6 +1,7 @@
 import { Agent, CartItem } from '../types';
+import api from '../utils/api';
 
-// Service to manage user-specific data (cart, purchases, listings, etc.)
+// Service to manage user-specific data via Laravel API
 
 export interface Purchase {
   id: string;
@@ -24,136 +25,198 @@ export interface UserStats {
   totalViews: number;
 }
 
+interface ApiResponse<T> {
+  success: boolean;
+  data?: T;
+  message?: string;
+  error?: string;
+}
+
 class UserDataService {
-  // Cart Management
+  // Cart Management - API calls
+  async getCart(): Promise<CartItem[]> {
+    try {
+      const response = await api.get<ApiResponse<CartItem[]>>('/cart');
+      return response.data || [];
+    } catch (error) {
+      console.error('Error fetching cart:', error);
+      return [];
+    }
+  }
+
+  async addToCart(agentId: string, quantity: number = 1): Promise<boolean> {
+    try {
+      await api.post('/cart', { agent_id: agentId, quantity });
+      return true;
+    } catch (error) {
+      console.error('Error adding to cart:', error);
+      return false;
+    }
+  }
+
+  async updateCartItem(cartItemId: string, quantity: number): Promise<boolean> {
+    try {
+      await api.put(`/cart/${cartItemId}`, { quantity });
+      return true;
+    } catch (error) {
+      console.error('Error updating cart:', error);
+      return false;
+    }
+  }
+
+  async removeFromCart(cartItemId: string): Promise<boolean> {
+    try {
+      await api.delete(`/cart/${cartItemId}`);
+      return true;
+    } catch (error) {
+      console.error('Error removing from cart:', error);
+      return false;
+    }
+  }
+
+  async clearCart(): Promise<boolean> {
+    try {
+      await api.delete('/cart');
+      return true;
+    } catch (error) {
+      console.error('Error clearing cart:', error);
+      return false;
+    }
+  }
+
+  // Purchase History - API calls
+  async getPurchases(): Promise<Purchase[]> {
+    try {
+      const response = await api.get<ApiResponse<Purchase[]>>('/purchases');
+      return response.data || [];
+    } catch (error) {
+      console.error('Error fetching purchases:', error);
+      return [];
+    }
+  }
+
+  async completePurchase(): Promise<boolean> {
+    try {
+      await api.post('/purchases');
+      return true;
+    } catch (error) {
+      console.error('Error completing purchase:', error);
+      return false;
+    }
+  }
+
+  // Agent Listings - API calls
+  async getListings(): Promise<AgentListing[]> {
+    try {
+      const response = await api.get<ApiResponse<AgentListing[]>>('/my-listings');
+      return response.data || [];
+    } catch (error) {
+      console.error('Error fetching listings:', error);
+      return [];
+    }
+  }
+
+  async addListing(agentData: any): Promise<AgentListing | null> {
+    try {
+      const response = await api.post<ApiResponse<AgentListing>>('/agents', agentData);
+      return response.data || null;
+    } catch (error) {
+      console.error('Error adding listing:', error);
+      return null;
+    }
+  }
+
+  async updateListing(agentId: string, updates: Partial<AgentListing>): Promise<boolean> {
+    try {
+      await api.put(`/agents/${agentId}`, updates);
+      return true;
+    } catch (error) {
+      console.error('Error updating listing:', error);
+      return false;
+    }
+  }
+
+  async deleteListing(agentId: string): Promise<boolean> {
+    try {
+      await api.delete(`/agents/${agentId}`);
+      return true;
+    } catch (error) {
+      console.error('Error deleting listing:', error);
+      return false;
+    }
+  }
+
+  // Dashboard Stats - API calls
+  async getDashboardStats(): Promise<{ stats: UserStats; recentSales: any[] } | null> {
+    try {
+      const response = await api.get<ApiResponse<{ stats: UserStats; recentSales: any[] }>>('/dashboard');
+      return response.data || null;
+    } catch (error) {
+      console.error('Error fetching dashboard:', error);
+      return null;
+    }
+  }
+
+  // Legacy methods for backward compatibility (now use API)
   getCart(userId: string): CartItem[] {
-    const key = `cart_${userId}`;
-    const cart = localStorage.getItem(key);
-    return cart ? JSON.parse(cart) : [];
+    console.warn('getCart(userId) is deprecated, use async getCart() instead');
+    return [];
   }
 
   saveCart(userId: string, cart: CartItem[]): void {
-    const key = `cart_${userId}`;
-    localStorage.setItem(key, JSON.stringify(cart));
+    console.warn('saveCart() is deprecated, cart is managed via API');
   }
 
   clearCart(userId: string): void {
-    const key = `cart_${userId}`;
-    localStorage.removeItem(key);
+    console.warn('clearCart(userId) is deprecated, use async clearCart() instead');
   }
 
-  // Purchase History
   getPurchases(userId: string): Purchase[] {
-    const key = `purchases_${userId}`;
-    const purchases = localStorage.getItem(key);
-    return purchases ? JSON.parse(purchases) : [];
+    console.warn('getPurchases(userId) is deprecated, use async getPurchases() instead');
+    return [];
   }
 
   addPurchase(userId: string, purchase: Omit<Purchase, 'id' | 'userId' | 'purchaseDate'>): void {
-    const purchases = this.getPurchases(userId);
-    const newPurchase: Purchase = {
-      ...purchase,
-      id: `purchase_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-      userId,
-      purchaseDate: new Date().toISOString(),
-    };
-    purchases.push(newPurchase);
-    
-    const key = `purchases_${userId}`;
-    localStorage.setItem(key, JSON.stringify(purchases));
+    console.warn('addPurchase() is deprecated, purchases are managed via API');
   }
 
-  // User's Agent Listings
   getListings(userId: string): AgentListing[] {
-    const key = `listings_${userId}`;
-    const listings = localStorage.getItem(key);
-    return listings ? JSON.parse(listings) : [];
+    console.warn('getListings(userId) is deprecated, use async getListings() instead');
+    return [];
   }
 
   addListing(userId: string, agent: Omit<AgentListing, 'id' | 'userId' | 'status' | 'listedDate'>): AgentListing {
-    const listings = this.getListings(userId);
-    const newListing: AgentListing = {
-      ...agent,
-      id: `agent_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-      userId,
-      status: 'pending',
-      listedDate: new Date().toISOString(),
-      sales: 0,
-      rating: 0,
-      reviews: 0,
-    };
-    listings.push(newListing);
-    
-    const key = `listings_${userId}`;
-    localStorage.setItem(key, JSON.stringify(listings));
-    
-    return newListing;
+    console.warn('addListing(userId, agent) is deprecated, use async addListing(agentData) instead');
+    return agent as AgentListing;
   }
 
   updateListing(userId: string, agentId: string, updates: Partial<AgentListing>): void {
-    const listings = this.getListings(userId);
-    const index = listings.findIndex(l => l.id === agentId);
-    
-    if (index !== -1) {
-      listings[index] = { ...listings[index], ...updates };
-      const key = `listings_${userId}`;
-      localStorage.setItem(key, JSON.stringify(listings));
-    }
+    console.warn('updateListing(userId, agentId) is deprecated, use async updateListing(agentId, updates) instead');
   }
 
   deleteListing(userId: string, agentId: string): void {
-    const listings = this.getListings(userId);
-    const filtered = listings.filter(l => l.id !== agentId);
-    
-    const key = `listings_${userId}`;
-    localStorage.setItem(key, JSON.stringify(filtered));
+    console.warn('deleteListing(userId, agentId) is deprecated, use async deleteListing(agentId) instead');
   }
 
-  // User Stats
   getStats(userId: string): UserStats {
-    const listings = this.getListings(userId);
-    
-    const activeListings = listings.filter(l => l.status === 'active').length;
-    const totalSales = listings.reduce((sum, l) => sum + l.sales, 0);
-    const totalRevenue = listings.reduce((sum, l) => sum + (l.price * l.sales * 0.85), 0); // 85% after platform fee
-    const totalViews = listings.reduce((sum, l) => sum + (l.sales * 10), 0); // Mock view calculation
-    
+    console.warn('getStats(userId) is deprecated, use async getDashboardStats() instead');
     return {
-      totalSales,
-      totalRevenue,
-      activeListings,
-      totalViews,
+      totalSales: 0,
+      totalRevenue: 0,
+      activeListings: 0,
+      totalViews: 0,
     };
   }
 
-  // Sales data for a user's listings
   getSales(userId: string): Array<{ agentId: string; agentName: string; buyer: string; amount: number; date: string }> {
-    const key = `sales_${userId}`;
-    const sales = localStorage.getItem(key);
-    return sales ? JSON.parse(sales) : [];
+    console.warn('getSales() is deprecated, use getDashboardStats() instead');
+    return [];
   }
 
   addSale(userId: string, sale: { agentId: string; agentName: string; buyer: string; amount: number }): void {
-    const sales = this.getSales(userId);
-    sales.push({
-      ...sale,
-      date: new Date().toISOString(),
-    });
-    
-    const key = `sales_${userId}`;
-    localStorage.setItem(key, JSON.stringify(sales));
-    
-    // Update listing sales count
-    const listings = this.getListings(userId);
-    const listing = listings.find(l => l.id === sale.agentId);
-    if (listing) {
-      listing.sales += 1;
-      const listingsKey = `listings_${userId}`;
-      localStorage.setItem(listingsKey, JSON.stringify(listings));
-    }
+    console.warn('addSale() is deprecated, sales are managed via API');
   }
 
-  // Wishlist
   getWishlist(userId: string): string[] {
     const key = `wishlist_${userId}`;
     const wishlist = localStorage.getItem(key);

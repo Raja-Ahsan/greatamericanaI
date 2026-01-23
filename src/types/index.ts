@@ -34,6 +34,7 @@ export interface User {
   email: string;
   avatar?: string;
   verified: boolean;
+  role?: 'admin' | 'vendor' | 'customer';
 }
 
 export interface Review {

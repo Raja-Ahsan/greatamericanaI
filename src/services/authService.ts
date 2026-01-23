@@ -1,17 +1,11 @@
 import { User } from '../types';
-
-const USERS_STORAGE_KEY = 'greatamerican_users';
-const CURRENT_USER_KEY = 'greatamerican_current_user';
-
-export interface AuthUser extends User {
-  password: string;
-  createdAt: string;
-}
+import api, { setToken, removeToken } from '../utils/api';
 
 export interface RegisterData {
   name: string;
   email: string;
   password: string;
+  role?: 'admin' | 'vendor' | 'customer';
 }
 
 export interface LoginData {
@@ -19,95 +13,118 @@ export interface LoginData {
   password: string;
 }
 
+interface AuthResponse {
+  success: boolean;
+  user?: User;
+  token?: string;
+  message?: string;
+  error?: string;
+}
+
 class AuthService {
-  // Get all users from localStorage
-  private getUsers(): AuthUser[] {
-    const users = localStorage.getItem(USERS_STORAGE_KEY);
-    return users ? JSON.parse(users) : [];
-  }
-
-  // Save users to localStorage
-  private saveUsers(users: AuthUser[]): void {
-    localStorage.setItem(USERS_STORAGE_KEY, JSON.stringify(users));
-  }
-
   // Register a new user
-  register(data: RegisterData): { success: boolean; error?: string; user?: User } {
-    const users = this.getUsers();
-
-    // Check if user already exists
-    if (users.find(u => u.email === data.email)) {
-      return { success: false, error: 'Email already registered' };
+  async register(data: RegisterData): Promise<{ success: boolean; error?: string; user?: User }> {
+    try {
+      const response = await api.post<AuthResponse>('/register', data);
+      
+      if (response.success && response.user && response.token) {
+        setToken(response.token);
+        localStorage.setItem('current_user', JSON.stringify(response.user));
+        return { success: true, user: response.user };
+      }
+      
+      return { success: false, error: response.error || 'Registration failed' };
+    } catch (error: any) {
+      return { success: false, error: error.message || 'Registration failed' };
     }
-
-    // Create new user
-    const newUser: AuthUser = {
-      id: `user_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-      name: data.name,
-      email: data.email,
-      password: data.password, // In production, this should be hashed
-      verified: false,
-      createdAt: new Date().toISOString(),
-    };
-
-    users.push(newUser);
-    this.saveUsers(users);
-
-    // Return user without password
-    const { password, ...userWithoutPassword } = newUser;
-    return { success: true, user: userWithoutPassword };
   }
 
   // Login user
-  login(data: LoginData): { success: boolean; error?: string; user?: User } {
-    const users = this.getUsers();
-    const user = users.find(u => u.email === data.email && u.password === data.password);
-
-    if (!user) {
-      return { success: false, error: 'Invalid email or password' };
+  async login(data: LoginData): Promise<{ success: boolean; error?: string; user?: User }> {
+    try {
+      const response = await api.post<AuthResponse>('/login', data);
+      
+      if (response.success && response.user && response.token) {
+        setToken(response.token);
+        localStorage.setItem('current_user', JSON.stringify(response.user));
+        return { success: true, user: response.user };
+      }
+      
+      return { success: false, error: response.error || 'Invalid credentials' };
+    } catch (error: any) {
+      return { success: false, error: error.message || 'Login failed' };
     }
-
-    // Save current user session
-    const { password, ...userWithoutPassword } = user;
-    localStorage.setItem(CURRENT_USER_KEY, JSON.stringify(userWithoutPassword));
-
-    return { success: true, user: userWithoutPassword };
   }
 
   // Logout user
-  logout(): void {
-    localStorage.removeItem(CURRENT_USER_KEY);
+  async logout(): Promise<void> {
+    try {
+      await api.post('/logout');
+    } catch (error) {
+      console.error('Logout error:', error);
+    } finally {
+      removeToken();
+      localStorage.removeItem('current_user');
+    }
   }
 
   // Get current logged in user
   getCurrentUser(): User | null {
-    const user = localStorage.getItem(CURRENT_USER_KEY);
+    const user = localStorage.getItem('current_user');
     return user ? JSON.parse(user) : null;
   }
 
-  // Update user profile
-  updateProfile(userId: string, updates: Partial<User>): { success: boolean; error?: string; user?: User } {
-    const users = this.getUsers();
-    const userIndex = users.findIndex(u => u.id === userId);
-
-    if (userIndex === -1) {
-      return { success: false, error: 'User not found' };
+  // Check authentication with backend
+  async checkAuth(): Promise<User | null> {
+    const token = localStorage.getItem('auth_token');
+    
+    // If no token, don't make API call
+    if (!token) {
+      removeToken();
+      localStorage.removeItem('current_user');
+      return null;
     }
 
-    // Update user
-    users[userIndex] = { ...users[userIndex], ...updates };
-    this.saveUsers(users);
+    try {
+      const response = await api.get<{ success: boolean; user?: User }>('/me');
+      
+      if (response.success && response.user) {
+        localStorage.setItem('current_user', JSON.stringify(response.user));
+        return response.user;
+      }
+      
+      // If check fails, clear local storage
+      removeToken();
+      localStorage.removeItem('current_user');
+      return null;
+    } catch (error: any) {
+      // Token invalid or expired - silently fail without redirect
+      // The API utility will handle redirects only when appropriate
+      removeToken();
+      localStorage.removeItem('current_user');
+      return null;
+    }
+  }
 
-    // Update current user session
-    const { password, ...userWithoutPassword } = users[userIndex];
-    localStorage.setItem(CURRENT_USER_KEY, JSON.stringify(userWithoutPassword));
-
-    return { success: true, user: userWithoutPassword };
+  // Update user profile
+  async updateProfile(updates: Partial<User>): Promise<{ success: boolean; error?: string; user?: User }> {
+    try {
+      const response = await api.put<AuthResponse>('/profile', updates);
+      
+      if (response.success && response.user) {
+        localStorage.setItem('current_user', JSON.stringify(response.user));
+        return { success: true, user: response.user };
+      }
+      
+      return { success: false, error: response.error || 'Update failed' };
+    } catch (error: any) {
+      return { success: false, error: error.message || 'Update failed' };
+    }
   }
 
   // Check if user is authenticated
   isAuthenticated(): boolean {
-    return this.getCurrentUser() !== null;
+    return this.getCurrentUser() !== null && localStorage.getItem('auth_token') !== null;
   }
 }
 

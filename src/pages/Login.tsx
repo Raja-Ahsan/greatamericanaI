@@ -139,11 +139,17 @@ const Login = () => {
             </button>
           </form>
 
-          <div className="mt-6 text-center">
+          <div className="mt-6 text-center space-y-2">
             <p className="text-gray-600">
               Don't have an account?{' '}
               <Link to="/register" className="text-blue-600 hover:text-blue-700 font-semibold">
                 Sign up
+              </Link>
+            </p>
+            <p className="text-sm text-gray-500">
+              Are you an admin?{' '}
+              <Link to="/admin/login" className="text-blue-600 hover:text-blue-700 font-semibold">
+                Admin Login
               </Link>
             </p>
           </div>

@@ -1,8 +1,8 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Filter, SlidersHorizontal } from 'lucide-react';
 import AgentCard from '../components/AgentCard';
-import { mockAgents } from '../data/mockData';
-import { Category } from '../types';
+import { Category, Agent } from '../types';
+import api from '../utils/api';
 
 const categories: Category[] = [
   'All',
@@ -20,8 +20,39 @@ const Marketplace = () => {
   const [selectedCategory, setSelectedCategory] = useState<Category>('All');
   const [sortBy, setSortBy] = useState<string>('popular');
   const [priceRange, setPriceRange] = useState<[number, number]>([0, 500]);
+  const [agents, setAgents] = useState<Agent[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  const filteredAgents = mockAgents.filter((agent) => {
+  // Fetch agents from API
+  useEffect(() => {
+    const fetchAgents = async () => {
+      try {
+        setLoading(true);
+        const params = new URLSearchParams();
+        if (selectedCategory !== 'All') {
+          params.append('category', selectedCategory);
+        }
+        params.append('min_price', priceRange[0].toString());
+        params.append('max_price', priceRange[1].toString());
+        params.append('sort_by', sortBy);
+
+        const response = await api.get<{ success: boolean; data: Agent[] }>(`/agents?${params.toString()}`);
+        if (response.success && response.data) {
+          setAgents(response.data);
+        }
+      } catch (err: any) {
+        setError(err.message || 'Failed to load agents');
+        console.error('Error fetching agents:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchAgents();
+  }, [selectedCategory, priceRange, sortBy]);
+
+  const filteredAgents = agents.filter((agent) => {
     if (selectedCategory !== 'All' && agent.category !== selectedCategory) {
       return false;
     }
@@ -29,21 +60,6 @@ const Marketplace = () => {
       return false;
     }
     return true;
-  });
-
-  const sortedAgents = [...filteredAgents].sort((a, b) => {
-    switch (sortBy) {
-      case 'price-low':
-        return a.price - b.price;
-      case 'price-high':
-        return b.price - a.price;
-      case 'rating':
-        return b.rating - a.rating;
-      case 'newest':
-        return new Date(b.dateAdded).getTime() - new Date(a.dateAdded).getTime();
-      default: // popular
-        return b.sales - a.sales;
-    }
   });
 
   return (
@@ -121,7 +137,7 @@ const Marketplace = () => {
             {/* Sort and Results */}
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
               <p className="text-gray-600">
-                {sortedAgents.length} agents found
+                {filteredAgents.length} agents found
               </p>
               <select
                 value={sortBy}
@@ -137,9 +153,17 @@ const Marketplace = () => {
             </div>
 
             {/* Agents Grid */}
-            {sortedAgents.length > 0 ? (
+            {loading ? (
+              <div className="text-center py-12">
+                <p className="text-gray-500 text-lg">Loading agents...</p>
+              </div>
+            ) : error ? (
+              <div className="text-center py-12">
+                <p className="text-red-500 text-lg">{error}</p>
+              </div>
+            ) : filteredAgents.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {sortedAgents.map((agent) => (
+                {filteredAgents.map((agent) => (
                   <AgentCard key={agent.id} agent={agent} />
                 ))}
               </div>

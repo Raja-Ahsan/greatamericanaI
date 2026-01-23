@@ -7,75 +7,122 @@ interface Store {
   cart: CartItem[];
   user: User | null;
   isAuthenticated: boolean;
+  loading: boolean;
   
   // Auth actions
   login: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
   register: (name: string, email: string, password: string) => Promise<{ success: boolean; error?: string }>;
-  logout: () => void;
+  logout: () => Promise<void>;
   updateProfile: (updates: Partial<User>) => Promise<{ success: boolean; error?: string }>;
-  checkAuth: () => void;
+  checkAuth: () => Promise<void>;
   
   // Cart actions
-  addToCart: (agent: Agent) => void;
-  removeFromCart: (agentId: string) => void;
-  updateQuantity: (agentId: string, quantity: number) => void;
-  clearCart: () => void;
+  addToCart: (agent: Agent) => Promise<void>;
+  removeFromCart: (cartItemId: string) => Promise<void>;
+  updateQuantity: (cartItemId: string, quantity: number) => Promise<void>;
+  clearCart: () => Promise<void>;
+  loadCart: () => Promise<void>;
   getTotalPrice: () => number;
   getTotalItems: () => number;
-  loadCart: () => void;
   
   // Purchase action
-  completePurchase: () => void;
+  completePurchase: () => Promise<{ success: boolean; error?: string }>;
 }
+
+// Initialize auth state from localStorage
+const getInitialAuthState = () => {
+  const token = localStorage.getItem('auth_token');
+  const userStr = localStorage.getItem('current_user');
+  
+  if (token && userStr) {
+    try {
+      const user = JSON.parse(userStr);
+      return { user, isAuthenticated: true };
+    } catch (e) {
+      return { user: null, isAuthenticated: false };
+    }
+  }
+  
+  return { user: null, isAuthenticated: false };
+};
+
+const initialAuth = getInitialAuthState();
 
 export const useStore = create<Store>((set, get) => ({
   cart: [],
-  user: null,
-  isAuthenticated: false,
+  user: initialAuth.user,
+  isAuthenticated: initialAuth.isAuthenticated,
+  loading: false,
 
   // Check if user is authenticated on app load
-  checkAuth: () => {
-    const user = authService.getCurrentUser();
-    if (user) {
-      set({ user, isAuthenticated: true });
-      get().loadCart();
+  checkAuth: async () => {
+    set({ loading: true });
+    try {
+      const user = await authService.checkAuth();
+      if (user) {
+        set({ user, isAuthenticated: true });
+        await get().loadCart();
+      } else {
+        set({ user: null, isAuthenticated: false, cart: [] });
+      }
+    } catch (error) {
+      console.error('Auth check failed:', error);
+      set({ user: null, isAuthenticated: false, cart: [] });
+    } finally {
+      set({ loading: false });
     }
   },
 
   // Login
   login: async (email: string, password: string) => {
-    const result = authService.login({ email, password });
-    
-    if (result.success && result.user) {
-      set({ user: result.user, isAuthenticated: true });
-      get().loadCart();
-      return { success: true };
+    set({ loading: true });
+    try {
+      const result = await authService.login({ email, password });
+      
+      if (result.success && result.user) {
+        set({ user: result.user, isAuthenticated: true });
+        await get().loadCart();
+        return { success: true };
+      }
+      
+      return { success: false, error: result.error };
+    } catch (error: any) {
+      return { success: false, error: error.message || 'Login failed' };
+    } finally {
+      set({ loading: false });
     }
-    
-    return { success: false, error: result.error };
   },
 
   // Register
   register: async (name: string, email: string, password: string) => {
-    const result = authService.register({ name, email, password });
-    
-    if (result.success && result.user) {
-      set({ user: result.user, isAuthenticated: true });
-      return { success: true };
+    set({ loading: true });
+    try {
+      const result = await authService.register({ name, email, password });
+      
+      if (result.success && result.user) {
+        set({ user: result.user, isAuthenticated: true });
+        return { success: true };
+      }
+      
+      return { success: false, error: result.error };
+    } catch (error: any) {
+      return { success: false, error: error.message || 'Registration failed' };
+    } finally {
+      set({ loading: false });
     }
-    
-    return { success: false, error: result.error };
   },
 
   // Logout
-  logout: () => {
-    const state = get();
-    if (state.user) {
-      // Save cart before logout
-      userDataService.saveCart(state.user.id, state.cart);
+  logout: async () => {
+    set({ loading: true });
+    try {
+      await authService.logout();
+    } catch (error) {
+      console.error('Logout error:', error);
+    } finally {
+      set({ user: null, isAuthenticated: false, cart: [] });
+      set({ loading: false });
     }
-    authService.logout();
-    set({ user: null, isAuthenticated: false, cart: [] });
   },
 
   // Update profile
@@ -85,86 +132,99 @@ export const useStore = create<Store>((set, get) => ({
       return { success: false, error: 'Not authenticated' };
     }
 
-    const result = authService.updateProfile(state.user.id, updates);
-    
-    if (result.success && result.user) {
-      set({ user: result.user });
-      return { success: true };
+    set({ loading: true });
+    try {
+      const result = await authService.updateProfile(updates);
+      
+      if (result.success && result.user) {
+        set({ user: result.user });
+        return { success: true };
+      }
+      
+      return { success: false, error: result.error };
+    } catch (error: any) {
+      return { success: false, error: error.message || 'Update failed' };
+    } finally {
+      set({ loading: false });
     }
-    
-    return { success: false, error: result.error };
   },
 
-  // Load cart from localStorage for current user
-  loadCart: () => {
-    const state = get();
-    if (state.user) {
-      const cart = userDataService.getCart(state.user.id);
+  // Load cart from API
+  loadCart: async () => {
+    try {
+      const cart = await userDataService.getCart();
       set({ cart });
+    } catch (error) {
+      console.error('Error loading cart:', error);
+      set({ cart: [] });
     }
   },
 
   // Add to cart
-  addToCart: (agent) => {
+  addToCart: async (agent: Agent) => {
     const state = get();
     if (!state.user) {
-      // User must be logged in to add to cart
       return;
     }
 
-    const cart = state.cart;
-    const existingItem = cart.find(item => item.agent.id === agent.id);
-
-    let newCart: CartItem[];
-    if (existingItem) {
-      newCart = cart.map(item =>
-        item.agent.id === agent.id
-          ? { ...item, quantity: item.quantity + 1 }
-          : item
-      );
-    } else {
-      newCart = [...cart, { agent, quantity: 1 }];
+    try {
+      const success = await userDataService.addToCart(agent.id.toString(), 1);
+      if (success) {
+        await get().loadCart(); // Reload cart from API
+      }
+    } catch (error) {
+      console.error('Error adding to cart:', error);
     }
-
-    set({ cart: newCart });
-    userDataService.saveCart(state.user.id, newCart);
   },
 
   // Remove from cart
-  removeFromCart: (agentId) => {
+  removeFromCart: async (cartItemId: string) => {
     const state = get();
     if (!state.user) return;
 
-    const newCart = state.cart.filter(item => item.agent.id !== agentId);
-    set({ cart: newCart });
-    userDataService.saveCart(state.user.id, newCart);
+    try {
+      const success = await userDataService.removeFromCart(cartItemId);
+      if (success) {
+        await get().loadCart(); // Reload cart from API
+      }
+    } catch (error) {
+      console.error('Error removing from cart:', error);
+    }
   },
 
   // Update quantity
-  updateQuantity: (agentId, quantity) => {
+  updateQuantity: async (cartItemId: string, quantity: number) => {
     const state = get();
     if (!state.user) return;
 
     if (quantity <= 0) {
-      get().removeFromCart(agentId);
+      await get().removeFromCart(cartItemId);
       return;
     }
 
-    const newCart = state.cart.map(item =>
-      item.agent.id === agentId ? { ...item, quantity } : item
-    );
-    
-    set({ cart: newCart });
-    userDataService.saveCart(state.user.id, newCart);
+    try {
+      const success = await userDataService.updateCartItem(cartItemId, quantity);
+      if (success) {
+        await get().loadCart(); // Reload cart from API
+      }
+    } catch (error) {
+      console.error('Error updating quantity:', error);
+    }
   },
 
   // Clear cart
-  clearCart: () => {
+  clearCart: async () => {
     const state = get();
     if (!state.user) return;
 
-    set({ cart: [] });
-    userDataService.clearCart(state.user.id);
+    try {
+      const success = await userDataService.clearCart();
+      if (success) {
+        set({ cart: [] });
+      }
+    } catch (error) {
+      console.error('Error clearing cart:', error);
+    }
   },
 
   // Get total price
@@ -178,30 +238,26 @@ export const useStore = create<Store>((set, get) => ({
   },
 
   // Complete purchase
-  completePurchase: () => {
+  completePurchase: async () => {
     const state = get();
-    if (!state.user) return;
+    if (!state.user) {
+      return { success: false, error: 'Not authenticated' };
+    }
 
-    // Add purchases to user's purchase history
-    state.cart.forEach(item => {
-      userDataService.addPurchase(state.user!.id, {
-        agentId: item.agent.id,
-        agentName: item.agent.name,
-        price: item.agent.price * item.quantity,
-      });
-
-      // If the agent has a seller, record the sale
-      if (item.agent.seller && item.agent.seller.id) {
-        userDataService.addSale(item.agent.seller.id, {
-          agentId: item.agent.id,
-          agentName: item.agent.name,
-          buyer: state.user!.email,
-          amount: item.agent.price * item.quantity,
-        });
+    set({ loading: true });
+    try {
+      const success = await userDataService.completePurchase();
+      
+      if (success) {
+        set({ cart: [] });
+        return { success: true };
       }
-    });
-
-    // Clear cart after purchase
-    get().clearCart();
+      
+      return { success: false, error: 'Purchase failed' };
+    } catch (error: any) {
+      return { success: false, error: error.message || 'Purchase failed' };
+    } finally {
+      set({ loading: false });
+    }
   },
 }));
