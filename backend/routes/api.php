@@ -20,6 +20,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::get('/me', [AuthController::class, 'me']);
     Route::put('/profile', [AuthController::class, 'updateProfile']);
+    Route::post('/profile/avatar', [AuthController::class, 'uploadAvatar']);
+    Route::post('/profile/change-password', [AuthController::class, 'changePassword']);
 
     // Cart routes (Customer)
     Route::prefix('cart')->group(function () {
@@ -43,6 +45,9 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::delete('/agents/{id}', [AgentController::class, 'destroy']);
         Route::get('/my-listings', [AgentController::class, 'myListings']);
     });
+
+    // Agent file download (for customers who purchased)
+    Route::get('/agents/{id}/download', [AgentController::class, 'downloadFile']);
 
     // Dashboard routes (Vendor & Admin)
     Route::middleware('role:vendor,admin')->group(function () {

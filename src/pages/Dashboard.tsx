@@ -74,6 +74,12 @@ const Dashboard = () => {
     return null;
   }
 
+  // Redirect vendor to vendor dashboard
+  if (isVendor) {
+    window.location.href = '/vendor/dashboard';
+    return null;
+  }
+
   // Admin Dashboard (old code - now redirects)
   if (false && isAdmin && adminData) {
     const stats = adminData.stats;

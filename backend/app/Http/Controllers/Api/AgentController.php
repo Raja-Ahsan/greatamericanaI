@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\Agent;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class AgentController extends Controller
 {
@@ -98,11 +99,54 @@ class AgentController extends Controller
             'category' => 'required|string',
             'model' => 'required|string',
             'responseTime' => 'required|string',
-            'capabilities' => 'required|array',
-            'languages' => 'required|array',
-            'tags' => 'nullable|array',
+            'capabilities' => 'required|string', // JSON string from FormData
+            'languages' => 'required|string', // JSON string from FormData
+            'tags' => 'nullable|string', // JSON string from FormData
             'image' => 'nullable|string',
+            'agent_file' => 'nullable|file|mimes:zip,rar,application/zip,application/x-zip-compressed,application/x-rar-compressed,application/vnd.rar|max:102400', // 100MB max
+            'video_file' => 'nullable|file|mimes:mp4,avi,mov,wmv,flv,webm|max:512000', // 500MB max
+            'video_url' => 'nullable|url|max:500',
+            'thumbnail_image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:5120', // 5MB max
+            'gallery_images' => 'nullable|array',
+            'gallery_images.*' => 'image|mimes:jpeg,png,jpg,gif|max:5120', // 5MB max per image
         ]);
+
+        // Handle file uploads
+        $filePath = null;
+        if ($request->hasFile('agent_file')) {
+            $file = $request->file('agent_file');
+            $filePath = $file->store('agent-files', 'public');
+        }
+
+        // Handle video upload or URL
+        $videoPath = null;
+        $videoUrl = null;
+        if ($request->hasFile('video_file')) {
+            $video = $request->file('video_file');
+            $videoPath = $video->store('agent-videos', 'public');
+        } elseif ($request->has('video_url') && $request->video_url) {
+            $videoUrl = $request->video_url;
+        }
+
+        // Handle thumbnail image
+        $thumbnailPath = null;
+        if ($request->hasFile('thumbnail_image')) {
+            $thumbnail = $request->file('thumbnail_image');
+            $thumbnailPath = $thumbnail->store('agent-thumbnails', 'public');
+        }
+
+        // Handle gallery images
+        $galleryPaths = [];
+        if ($request->hasFile('gallery_images')) {
+            foreach ($request->file('gallery_images') as $image) {
+                $galleryPaths[] = $image->store('agent-gallery', 'public');
+            }
+        }
+
+        // Parse JSON strings from FormData
+        $capabilities = json_decode($request->capabilities, true) ?? [];
+        $languages = json_decode($request->languages, true) ?? [];
+        $tags = $request->has('tags') && $request->tags ? json_decode($request->tags, true) ?? [] : [];
 
         $agent = Agent::create([
             'name' => $request->name,
@@ -112,10 +156,14 @@ class AgentController extends Controller
             'category' => $request->category,
             'model' => $request->model,
             'response_time' => $request->responseTime,
-            'capabilities' => $request->capabilities,
-            'languages' => $request->languages,
-            'tags' => $request->tags ?? [],
+            'capabilities' => $capabilities,
+            'languages' => $languages,
+            'tags' => $tags,
             'image' => $request->image ?? 'https://images.unsplash.com/photo-1677442136019-21780ecad995?w=800&h=600&fit=crop',
+            'file_path' => $filePath,
+            'video_url' => $videoUrl ?: ($videoPath ? url(Storage::url($videoPath)) : null),
+            'thumbnail_image' => $thumbnailPath ? Storage::url($thumbnailPath) : null,
+            'gallery_images' => !empty($galleryPaths) ? array_map(fn($path) => Storage::url($path), $galleryPaths) : null,
             'seller_id' => $request->user()->id,
             'api_access' => true,
             'date_added' => now(),
@@ -164,6 +212,7 @@ class AgentController extends Controller
                 'tags' => $agent->tags ?? [],
                 'dateAdded' => $agent->date_added->format('Y-m-d'),
                 'sales' => $agent->sales,
+                'filePath' => $agent->file_path ? Storage::url($agent->file_path) : null,
             ],
         ]);
     }
@@ -239,5 +288,38 @@ class AgentController extends Controller
             'success' => true,
             'data' => $agents,
         ]);
+    }
+
+    /**
+     * Download agent file (for customers who purchased)
+     */
+    public function downloadFile(Request $request, string $id)
+    {
+        $agent = Agent::findOrFail($id);
+        $user = $request->user();
+
+        // Check if user purchased this agent
+        $hasPurchased = $user->purchases()->where('agent_id', $agent->id)->exists();
+
+        // Allow admin and seller to download
+        $canDownload = $user->isAdmin() || 
+                      $agent->seller_id === $user->id || 
+                      $hasPurchased;
+
+        if (!$canDownload) {
+            return response()->json([
+                'success' => false,
+                'message' => 'You must purchase this agent to download the files',
+            ], 403);
+        }
+
+        if (!$agent->file_path || !Storage::disk('public')->exists($agent->file_path)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'File not found',
+            ], 404);
+        }
+
+        return Storage::disk('public')->download($agent->file_path);
     }
 }

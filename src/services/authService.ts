@@ -122,6 +122,47 @@ class AuthService {
     }
   }
 
+  // Upload avatar
+  async uploadAvatar(file: File): Promise<{ success: boolean; avatar?: string; error?: string }> {
+    try {
+      const formData = new FormData();
+      formData.append('avatar', file);
+
+      const response = await api.post<{ success: boolean; avatar?: string; error?: string }>('/profile/avatar', formData);
+      
+      if (response.success && response.avatar) {
+        return { success: true, avatar: response.avatar };
+      }
+      
+      return { success: false, error: response.error || 'Upload failed' };
+    } catch (error: any) {
+      return { success: false, error: error.message || 'Upload failed' };
+    }
+  }
+
+  // Change password
+  async changePassword(currentPassword: string, newPassword: string, confirmPassword: string): Promise<{ success: boolean; message?: string; error?: string }> {
+    try {
+      if (newPassword !== confirmPassword) {
+        return { success: false, error: 'New passwords do not match' };
+      }
+
+      const response = await api.post<{ success: boolean; message?: string; error?: string }>('/profile/change-password', {
+        current_password: currentPassword,
+        new_password: newPassword,
+        new_password_confirmation: confirmPassword,
+      });
+      
+      if (response.success) {
+        return { success: true, message: response.message || 'Password changed successfully' };
+      }
+      
+      return { success: false, error: response.message || 'Failed to change password' };
+    } catch (error: any) {
+      return { success: false, error: error.response?.data?.message || error.message || 'Failed to change password' };
+    }
+  }
+
   // Check if user is authenticated
   isAuthenticated(): boolean {
     return this.getCurrentUser() !== null && localStorage.getItem('auth_token') !== null;

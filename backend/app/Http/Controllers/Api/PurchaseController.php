@@ -103,13 +103,30 @@ class PurchaseController extends Controller
             ], 403);
         }
 
-        $agents = $request->user()->agents;
+        $user = $request->user();
+        $agents = $user->agents()->get();
+        
+        $totalListings = $agents->count();
         $activeListings = $agents->where('status', 'active')->count();
-        $totalSales = $agents->sum('sales');
+        $pendingListings = $agents->where('status', 'pending')->count();
+        $totalSales = $agents->sum('sales') ?? 0;
         $totalRevenue = $agents->sum(function ($agent) {
-            return $agent->price * $agent->sales * 0.85; // 85% commission
+            return ($agent->price ?? 0) * ($agent->sales ?? 0) * 0.85; // 85% commission
         });
-        $totalViews = $agents->sum('sales') * 10; // Mock calculation
+        $totalViews = ($agents->sum('sales') ?? 0) * 10; // Mock calculation
+
+        // Get recent listings
+        $recentListings = $agents->sortByDesc('created_at')
+            ->take(10)
+            ->values()
+            ->map(function ($agent) {
+                return [
+                    'id' => $agent->id,
+                    'name' => $agent->name,
+                    'price' => (float) ($agent->price ?? 0),
+                    'status' => $agent->status ?? 'pending',
+                ];
+            });
 
         // Get recent sales
         $recentSales = Purchase::whereHas('agent', function ($query) use ($request) {
@@ -121,10 +138,14 @@ class PurchaseController extends Controller
             ->get()
             ->map(function ($purchase) {
                 return [
-                    'agentName' => $purchase->agent_name,
-                    'buyer' => $purchase->user ? $purchase->user->email : 'N/A',
-                    'amount' => (float) $purchase->total_amount,
-                    'date' => $purchase->purchase_date->toISOString(),
+                    'id' => $purchase->id,
+                    'agent_name' => $purchase->agent_name,
+                    'total_amount' => (float) $purchase->total_amount,
+                    'purchase_date' => $purchase->purchase_date->toISOString(),
+                    'user' => $purchase->user ? [
+                        'name' => $purchase->user->name,
+                        'email' => $purchase->user->email,
+                    ] : null,
                 ];
             });
 
@@ -132,12 +153,15 @@ class PurchaseController extends Controller
             'success' => true,
             'data' => [
                 'stats' => [
-                    'totalRevenue' => (float) $totalRevenue,
-                    'activeListings' => $activeListings,
-                    'totalSales' => $totalSales,
-                    'totalViews' => $totalViews,
+                    'total_listings' => (int) $totalListings,
+                    'active_listings' => (int) $activeListings,
+                    'pending_listings' => (int) $pendingListings,
+                    'total_sales' => (int) $totalSales,
+                    'total_revenue' => (float) $totalRevenue,
+                    'views' => (int) $totalViews,
                 ],
-                'recentSales' => $recentSales,
+                'recent_listings' => $recentListings->toArray(),
+                'recent_sales' => $recentSales->toArray(),
             ],
         ]);
     }

@@ -137,8 +137,8 @@ export const useStore = create<Store>((set, get) => ({
       const result = await authService.updateProfile(updates);
       
       if (result.success && result.user) {
-        set({ user: result.user });
-        return { success: true };
+        set({ user: result.user, isAuthenticated: true });
+        return { success: true, user: result.user };
       }
       
       return { success: false, error: result.error };
