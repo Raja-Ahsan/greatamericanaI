@@ -2,6 +2,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Star, ShoppingCart, CheckCircle } from 'lucide-react';
 import { Agent } from '../types';
 import { useStore } from '../store/useStore';
+import getImageUrl from '../utils/imageUrl';
 
 interface AgentCardProps {
   agent: Agent;
@@ -26,11 +27,19 @@ const AgentCard = ({ agent }: AgentCardProps) => {
     <Link to={`/agent/${agent.id}`} className="block">
       <div className="bg-white rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 overflow-hidden h-full flex flex-col">
         {/* Image */}
-        <div className="relative h-48 overflow-hidden">
+        <div className="relative h-48 overflow-hidden bg-gray-200">
           <img
-            src={agent.image}
+            src={getImageUrl((agent as any).thumbnail_image) || getImageUrl(agent.image) || agent.image}
             alt={agent.name}
             className="w-full h-full object-cover transform hover:scale-105 transition-transform duration-300"
+            onError={(e) => {
+              // Fallback to default image if image fails to load
+              const target = e.target as HTMLImageElement;
+              const fallbackImage = 'https://images.unsplash.com/photo-1677442136019-21780ecad995?w=800&h=600&fit=crop';
+              if (target.src !== fallbackImage) {
+                target.src = fallbackImage;
+              }
+            }}
           />
           {agent.seller.verified && (
             <div className="absolute top-2 right-2 bg-blue-600 text-white px-2 py-1 rounded-full text-xs flex items-center">

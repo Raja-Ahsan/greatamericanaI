@@ -46,6 +46,16 @@ class User extends Authenticatable
         return $this->hasMany(Purchase::class);
     }
 
+    public function wallet(): \Illuminate\Database\Eloquent\Relations\HasOne
+    {
+        return $this->hasOne(Wallet::class);
+    }
+
+    public function vendorSetting(): \Illuminate\Database\Eloquent\Relations\HasOne
+    {
+        return $this->hasOne(VendorSetting::class);
+    }
+
     public function isAdmin(): bool
     {
         return $this->role === 'admin';

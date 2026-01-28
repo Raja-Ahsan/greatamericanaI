@@ -202,6 +202,14 @@ const VendorProfile = () => {
       return;
     }
 
+    // Check for at least one uppercase, one lowercase, and one number
+    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/;
+    if (!passwordRegex.test(passwordData.newPassword)) {
+      setPasswordError('Password must contain at least one uppercase letter, one lowercase letter, and one number');
+      setPasswordLoading(false);
+      return;
+    }
+
     if (passwordData.newPassword !== passwordData.confirmPassword) {
       setPasswordError('New passwords do not match');
       setPasswordLoading(false);

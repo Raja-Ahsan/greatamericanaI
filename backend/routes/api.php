@@ -4,24 +4,26 @@ use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\AgentController;
 use App\Http\Controllers\Api\CartController;
 use App\Http\Controllers\Api\PurchaseController;
+use App\Http\Controllers\Api\WalletController;
+use App\Http\Controllers\Api\SettingsController;
 use Illuminate\Support\Facades\Route;
 
-// Public routes
-Route::post('/register', [AuthController::class, 'register']);
-Route::post('/login', [AuthController::class, 'login']);
+// Public routes with rate limiting
+Route::post('/register', [AuthController::class, 'register'])->middleware('throttle:5,1'); // 5 attempts per minute
+Route::post('/login', [AuthController::class, 'login'])->middleware('throttle:5,1'); // 5 attempts per minute
 
 // Public agent routes
 Route::get('/agents', [AgentController::class, 'index']);
 Route::get('/agents/{id}', [AgentController::class, 'show']);
 
-// Protected routes (require authentication)
-Route::middleware('auth:sanctum')->group(function () {
+// Protected routes (require authentication) with rate limiting
+Route::middleware(['auth:sanctum', 'throttle:60,1'])->group(function () { // 60 requests per minute
     // Auth routes
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::get('/me', [AuthController::class, 'me']);
     Route::put('/profile', [AuthController::class, 'updateProfile']);
-    Route::post('/profile/avatar', [AuthController::class, 'uploadAvatar']);
-    Route::post('/profile/change-password', [AuthController::class, 'changePassword']);
+    Route::post('/profile/avatar', [AuthController::class, 'uploadAvatar'])->middleware('throttle:10,1'); // 10 uploads per minute
+    Route::post('/profile/change-password', [AuthController::class, 'changePassword'])->middleware('throttle:5,1'); // 5 attempts per minute
 
     // Cart routes (Customer)
     Route::prefix('cart')->group(function () {
@@ -38,10 +40,10 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/', [PurchaseController::class, 'store']);
     });
 
-    // Agent management routes (Vendor & Admin)
+    // Agent management routes (Vendor & Admin) with stricter rate limiting for file uploads
     Route::middleware('role:vendor,admin')->group(function () {
-        Route::post('/agents', [AgentController::class, 'store']);
-        Route::put('/agents/{id}', [AgentController::class, 'update']);
+        Route::post('/agents', [AgentController::class, 'store'])->middleware('throttle:10,1'); // 10 uploads per minute
+        Route::put('/agents/{id}', [AgentController::class, 'update'])->middleware('throttle:10,1'); // 10 updates per minute
         Route::delete('/agents/{id}', [AgentController::class, 'destroy']);
         Route::get('/my-listings', [AgentController::class, 'myListings']);
     });
@@ -52,6 +54,21 @@ Route::middleware('auth:sanctum')->group(function () {
     // Dashboard routes (Vendor & Admin)
     Route::middleware('role:vendor,admin')->group(function () {
         Route::get('/dashboard', [PurchaseController::class, 'dashboard']);
+        Route::get('/analytics', [PurchaseController::class, 'analytics']);
+    });
+
+    // Wallet routes (Vendor & Admin)
+    Route::middleware('role:vendor,admin')->prefix('wallet')->group(function () {
+        Route::get('/', [WalletController::class, 'index']);
+        Route::get('/transactions', [WalletController::class, 'transactions']);
+        Route::get('/withdrawals', [WalletController::class, 'withdrawals']);
+        Route::post('/withdraw', [WalletController::class, 'withdraw'])->middleware('throttle:5,1'); // 5 requests per minute
+    });
+
+    // Vendor settings (Vendor & Admin)
+    Route::middleware('role:vendor,admin')->prefix('settings')->group(function () {
+        Route::get('/', [SettingsController::class, 'index']);
+        Route::put('/', [SettingsController::class, 'update']);
     });
 
     // Admin only routes
@@ -66,5 +83,11 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/agents', [\App\Http\Controllers\Admin\AgentManagementController::class, 'index']);
         Route::patch('/agents/{id}/status', [\App\Http\Controllers\Admin\AgentManagementController::class, 'updateStatus']);
         Route::delete('/agents/{id}', [\App\Http\Controllers\Admin\AgentManagementController::class, 'destroy']);
+
+        // Wallet & Withdrawals Management
+        Route::get('/wallets', [\App\Http\Controllers\Admin\WalletController::class, 'index']);
+        Route::get('/wallets/{id}', [\App\Http\Controllers\Admin\WalletController::class, 'show']);
+        Route::get('/withdrawals', [\App\Http\Controllers\Admin\WalletController::class, 'withdrawals']);
+        Route::patch('/withdrawals/{id}', [\App\Http\Controllers\Admin\WalletController::class, 'updateWithdrawal']);
     });
 });

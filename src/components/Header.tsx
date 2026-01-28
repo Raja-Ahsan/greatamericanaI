@@ -62,12 +62,18 @@ const Header = () => {
             >
               Marketplace
             </Link>
-            {isAuthenticated && (
+            <Link
+              to="/vendor/login"
+              className="text-gray-700 hover:text-blue-600 font-medium transition-colors"
+            >
+              Sell
+            </Link>
+            {isAuthenticated && user?.role === 'vendor' && (
               <Link
-                to="/sell"
+                to="/vendor/sell"
                 className="text-gray-700 hover:text-blue-600 font-medium transition-colors"
               >
-                Sell Agent
+                My Listings
               </Link>
             )}
             <button

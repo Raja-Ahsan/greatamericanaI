@@ -30,9 +30,11 @@ import VendorRegister from './pages/VendorRegister';
 import VendorDashboard from './pages/VendorDashboard';
 import VendorAgents from './pages/VendorAgents';
 import VendorSales from './pages/VendorSales';
+import VendorWallet from './pages/VendorWallet';
 import VendorAnalytics from './pages/VendorAnalytics';
 import VendorSettings from './pages/VendorSettings';
 import VendorProfile from './pages/VendorProfile';
+import AdminWallets from './pages/AdminWallets';
 import VendorLayout from './components/VendorLayout';
 import { useStore } from './store/useStore';
 
@@ -120,16 +122,26 @@ function AppContent() {
           }
         />
         {/* Vendor Sell Agent Route - within vendor dashboard */}
-        <Route
-          path="/vendor/sell"
-          element={
-            <ProtectedRoute>
-              <VendorLayout>
-                <SellAgent />
-              </VendorLayout>
-            </ProtectedRoute>
-          }
-        />
+          <Route
+            path="/vendor/sell"
+            element={
+              <ProtectedRoute>
+                <VendorLayout>
+                  <SellAgent />
+                </VendorLayout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/vendor/sell/:id"
+            element={
+              <ProtectedRoute>
+                <VendorLayout>
+                  <SellAgent />
+                </VendorLayout>
+              </ProtectedRoute>
+            }
+          />
         <Route
           path="/dashboard"
           element={
@@ -209,6 +221,16 @@ function AppContent() {
           }
         />
         <Route
+          path="/admin/wallets"
+          element={
+            <ProtectedRoute>
+              <AdminLayout>
+                <AdminWallets />
+              </AdminLayout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
           path="/admin/analytics"
           element={
             <ProtectedRoute>
@@ -276,6 +298,16 @@ function AppContent() {
             <ProtectedRoute>
               <VendorLayout>
                 <VendorSales />
+              </VendorLayout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/vendor/wallet"
+          element={
+            <ProtectedRoute>
+              <VendorLayout>
+                <VendorWallet />
               </VendorLayout>
             </ProtectedRoute>
           }

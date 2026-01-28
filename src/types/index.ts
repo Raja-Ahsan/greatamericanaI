@@ -8,6 +8,7 @@ export interface Agent {
   rating: number;
   reviews: number;
   image: string;
+  thumbnail_image?: string | null;
   seller: {
     id: string;
     name: string;

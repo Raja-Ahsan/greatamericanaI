@@ -16,8 +16,11 @@ class AuthController extends Controller
         $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users',
-            'password' => 'required|string|min:6',
+            'password' => 'required|string|min:8|regex:/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/', // At least 8 chars, 1 uppercase, 1 lowercase, 1 number
             'role' => 'nullable|in:admin,vendor,customer',
+        ], [
+            'password.min' => 'Password must be at least 8 characters long.',
+            'password.regex' => 'Password must contain at least one uppercase letter, one lowercase letter, and one number.',
         ]);
 
         $user = User::create([
@@ -216,8 +219,10 @@ class AuthController extends Controller
     {
         $request->validate([
             'current_password' => 'required|string',
-            'new_password' => 'required|string|min:8|confirmed',
+            'new_password' => 'required|string|min:8|regex:/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/|confirmed',
         ], [
+            'new_password.min' => 'Password must be at least 8 characters long.',
+            'new_password.regex' => 'Password must contain at least one uppercase letter, one lowercase letter, and one number.',
             'new_password.confirmed' => 'The new password confirmation does not match.',
         ]);
 

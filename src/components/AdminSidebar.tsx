@@ -11,7 +11,8 @@ import {
   FileText,
   LogOut,
   Menu,
-  X
+  X,
+  Wallet
 } from 'lucide-react';
 import { useStore } from '../store/useStore';
 import { useState, useEffect } from 'react';
@@ -52,6 +53,11 @@ const AdminSidebar = () => {
       title: 'Purchases',
       icon: ShoppingBag,
       path: '/admin/purchases',
+    },
+    {
+      title: 'Wallets',
+      icon: Wallet,
+      path: '/admin/wallets',
     },
     {
       title: 'Analytics',

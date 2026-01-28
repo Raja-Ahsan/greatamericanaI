@@ -1,14 +1,18 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { Upload, DollarSign, Tag, FileText, File, X, Video, Image as ImageIcon, Plus, Trash2, ChevronRight, ChevronLeft, Check } from 'lucide-react';
 import { useStore } from '../store/useStore';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate, useLocation, useParams } from 'react-router-dom';
 import api from '../utils/api';
+import getImageUrl from '../utils/imageUrl';
 
 const SellAgent = () => {
   const { user } = useStore();
   const navigate = useNavigate();
   const location = useLocation();
+  const { id } = useParams<{ id?: string }>();
   const isVendorRoute = location.pathname.startsWith('/vendor');
+  const isEditMode = !!id;
+  const [loadingData, setLoadingData] = useState(isEditMode);
   
   const [formData, setFormData] = useState({
     name: '',
@@ -43,6 +47,57 @@ const SellAgent = () => {
   const videoInputRef = useRef<HTMLInputElement>(null);
   const thumbnailInputRef = useRef<HTMLInputElement>(null);
   const galleryInputRef = useRef<HTMLInputElement>(null);
+
+  // Load agent data for editing
+  useEffect(() => {
+    if (isEditMode && id) {
+      loadAgentData(parseInt(id));
+    }
+  }, [id, isEditMode]);
+
+  const loadAgentData = async (agentId: number) => {
+    setLoadingData(true);
+    try {
+      const response = await api.get<{ success: boolean; data: any }>(`/agents/${agentId}`);
+      if (response.success && response.data) {
+        const agent = response.data;
+        
+        // Populate form data
+        setFormData({
+          name: agent.name || '',
+          description: agent.description || '',
+          longDescription: agent.longDescription || agent.long_description || '',
+          price: agent.price?.toString() || '',
+          category: agent.category || '',
+          model: agent.model || '',
+          responseTime: agent.responseTime || agent.response_time || '',
+          capabilities: Array.isArray(agent.capabilities) ? agent.capabilities.join('\n') : '',
+          languages: Array.isArray(agent.languages) ? agent.languages.join(', ') : '',
+          tags: Array.isArray(agent.tags) ? agent.tags.join(', ') : '',
+        });
+
+        // Set media fields
+        if (agent.video_url) {
+          setVideoUrl(agent.video_url);
+        }
+        if (agent.thumbnail_image) {
+          // Convert to full URL if needed
+          const thumbnailUrl = getImageUrl(agent.thumbnail_image);
+          setThumbnailPreview(thumbnailUrl);
+        }
+        if (Array.isArray(agent.gallery_images) && agent.gallery_images.length > 0) {
+          // Convert all gallery images to full URLs
+          const galleryUrls = agent.gallery_images.map((img: string) => getImageUrl(img));
+          setGalleryPreviews(galleryUrls);
+        }
+      }
+    } catch (error) {
+      console.error('Error loading agent data:', error);
+      setError('Failed to load agent data');
+    } finally {
+      setLoadingData(false);
+    }
+  };
 
   // Step validation functions
   const validateStep = (step: number): boolean => {
@@ -166,10 +221,22 @@ const SellAgent = () => {
         formDataToSend.append(`gallery_images[${index}]`, image);
       });
 
-      const response = await api.post<{ success: boolean; message?: string; data?: any }>('/agents', formDataToSend);
+      let response;
+      if (isEditMode && id) {
+        // Update existing agent
+        response = await api.put<{ success: boolean; message?: string; data?: any }>(`/agents/${id}`, formDataToSend);
+        if (response.success) {
+          setSuccess('Agent updated successfully!');
+        }
+      } else {
+        // Create new agent
+        response = await api.post<{ success: boolean; message?: string; data?: any }>('/agents', formDataToSend);
+        if (response.success) {
+          setSuccess('Agent submitted for review! We will contact you within 24 hours.');
+        }
+      }
 
       if (response.success) {
-        setSuccess('Agent submitted for review! We will contact you within 24 hours.');
         
         // Reset form
         setFormData({
@@ -333,7 +400,7 @@ const SellAgent = () => {
         return true;
       });
 
-      if (validFiles.length + galleryImages.length > 10) {
+      if (validFiles.length + galleryImages.length + galleryPreviews.length > 10) {
         setError('Maximum 10 images allowed in gallery');
         return;
       }
@@ -357,13 +424,25 @@ const SellAgent = () => {
     setGalleryPreviews(galleryPreviews.filter((_, i) => i !== index));
   };
 
+  if (loadingData) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600"></div>
+      </div>
+    );
+  }
+
   return (
     <div className="w-full">
       <div className="max-w-full mx-auto">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Create New Agent</h1>
-          <p className="text-gray-600">List your AI agent for sale on the marketplace</p>
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">
+            {isEditMode ? 'Edit Agent' : 'Create New Agent'}
+          </h1>
+          <p className="text-gray-600">
+            {isEditMode ? 'Update your AI agent listing' : 'List your AI agent for sale on the marketplace'}
+          </p>
         </div>
 
         {/* Error/Success Messages */}
@@ -822,12 +901,12 @@ const SellAgent = () => {
                   </div>
                 )}
 
-                {galleryImages.length < 10 && (
+                {(galleryPreviews.length + galleryImages.length) < 10 && (
                   <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-green-400 transition-colors">
                     <ImageIcon className="w-12 h-12 text-gray-400 mx-auto mb-4" />
                     <p className="text-gray-600 mb-2">Add Gallery Images</p>
                     <p className="text-sm text-gray-500 mb-4">
-                      PNG, JPG up to 5MB each. {galleryImages.length}/10 images
+                      PNG, JPG up to 5MB each. {galleryPreviews.length + galleryImages.length}/10 images
                     </p>
                     <button
                       type="button"

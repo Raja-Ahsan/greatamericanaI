@@ -9,7 +9,8 @@ import {
   LogOut,
   Menu,
   X,
-  PlusCircle
+  PlusCircle,
+  Wallet
 } from 'lucide-react';
 import { useStore } from '../store/useStore';
 import { useState, useEffect } from 'react';
@@ -41,6 +42,11 @@ const VendorSidebar = () => {
       title: 'Sales',
       icon: ShoppingBag,
       path: '/vendor/sales',
+    },
+    {
+      title: 'Wallet',
+      icon: Wallet,
+      path: '/vendor/wallet',
     },
     {
       title: 'Analytics',

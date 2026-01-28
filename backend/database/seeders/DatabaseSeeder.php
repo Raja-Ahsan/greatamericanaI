@@ -50,5 +50,11 @@ class DatabaseSeeder extends Seeder
         );
 
         $this->command->info('Users seeded successfully!');
+
+        // Seed dummy agents for vendor
+        $this->call(AgentSeeder::class);
+
+        // Seed dummy sales for testing wallet integration (optional)
+        $this->call(DummySalesSeeder::class);
     }
 }

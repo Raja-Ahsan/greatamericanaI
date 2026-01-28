@@ -1,7 +1,9 @@
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
 import AgentCard from '../components/AgentCard';
-import { mockAgents } from '../data/mockData';
+import { Agent } from '../types';
+import api from '../utils/api';
 import {
   CuratedAgentsSVG,
   InstantDeploymentSVG,
@@ -10,7 +12,30 @@ import {
 } from '../components/SVGIcons';
 
 const Home = () => {
-  const featuredAgents = mockAgents.slice(0, 4);
+  const [featuredAgents, setFeaturedAgents] = useState<Agent[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchFeaturedAgents();
+  }, []);
+
+  const fetchFeaturedAgents = async () => {
+    try {
+      setLoading(true);
+      // Fetch agents sorted by sales (most popular) and limit to 4
+      const response = await api.get<{ success: boolean; data: any[] }>('/agents?sort_by=popular');
+      if (response.success && response.data) {
+        // Get top 4 agents (most popular/sales)
+        // The API only returns active agents for public, so we can just take the first 4
+        const topAgents = response.data.slice(0, 4);
+        setFeaturedAgents(topAgents);
+      }
+    } catch (error) {
+      console.error('Error fetching featured agents:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <div className="bg-gray-50">
@@ -51,7 +76,7 @@ const Home = () => {
                 <ArrowRight className="ml-2 w-5 h-5" />
               </Link>
               <Link
-                to="/sell"
+                to="/vendor/login"
                 className="bg-transparent border-2 border-white text-white px-8 py-3 rounded-lg font-semibold hover:bg-white hover:text-blue-600 transition-colors inline-flex items-center justify-center shadow-lg hover:shadow-xl"
               >
                 Sell Your Agent
@@ -130,11 +155,35 @@ const Home = () => {
               <ArrowRight className="ml-2 w-5 h-5" />
             </Link>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {featuredAgents.map((agent) => (
-              <AgentCard key={agent.id} agent={agent} />
-            ))}
-          </div>
+          {loading ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              {[1, 2, 3, 4].map((i) => (
+                <div key={i} className="bg-white rounded-lg shadow-md overflow-hidden animate-pulse">
+                  <div className="h-48 bg-gray-200"></div>
+                  <div className="p-6">
+                    <div className="h-4 bg-gray-200 rounded mb-2"></div>
+                    <div className="h-4 bg-gray-200 rounded w-3/4"></div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : featuredAgents.length > 0 ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              {featuredAgents.map((agent) => (
+                <AgentCard key={agent.id} agent={agent} />
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-12">
+              <p className="text-gray-600">No featured agents available at the moment.</p>
+              <Link
+                to="/marketplace"
+                className="text-blue-600 hover:text-blue-700 font-semibold mt-4 inline-block"
+              >
+                Browse All Agents
+              </Link>
+            </div>
+          )}
         </div>
       </section>
 
