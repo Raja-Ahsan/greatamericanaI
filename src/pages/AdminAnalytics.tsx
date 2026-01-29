@@ -131,11 +131,11 @@ const AdminAnalytics = () => {
   const { stats, revenue_by_day, top_agents, recent_purchases } = data;
 
   return (
-    <div>
-      <div className="mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+    <div className="min-w-0">
+      <div className="mb-6 sm:mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Analytics & Insights</h1>
-          <p className="text-gray-600 mt-2">Platform performance metrics and trends</p>
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Analytics & Insights</h1>
+          <p className="text-gray-600 mt-1 sm:mt-2 text-sm sm:text-base">Platform performance metrics and trends</p>
         </div>
         <button
           type="button"
@@ -148,8 +148,8 @@ const AdminAnalytics = () => {
       </div>
 
       {/* Stats cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-4 mb-8">
-        <div className="bg-white rounded-lg shadow-md p-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-3 sm:gap-4 mb-6 sm:mb-8">
+        <div className="bg-white rounded-lg shadow-md p-4 sm:p-6 min-w-0">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-gray-600">Total Revenue</p>

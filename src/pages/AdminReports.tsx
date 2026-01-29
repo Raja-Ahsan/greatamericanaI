@@ -2,14 +2,14 @@ import { FileText, Download, Calendar } from 'lucide-react';
 
 const AdminReports = () => {
   return (
-    <div>
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900">Reports</h1>
-        <p className="text-gray-600 mt-2">Generate and download platform reports</p>
+    <div className="min-w-0">
+      <div className="mb-6 sm:mb-8">
+        <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Reports</h1>
+        <p className="text-gray-600 mt-1 sm:mt-2 text-sm sm:text-base">Generate and download platform reports</p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        <div className="bg-white rounded-lg shadow-md p-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+        <div className="bg-white rounded-lg shadow-md p-4 sm:p-6 min-w-0">
           <div className="flex items-center justify-between mb-4">
             <FileText className="w-8 h-8 text-blue-600" />
             <Download className="w-5 h-5 text-gray-400" />
@@ -33,7 +33,7 @@ const AdminReports = () => {
           </button>
         </div>
 
-        <div className="bg-white rounded-lg shadow-md p-6">
+        <div className="bg-white rounded-lg shadow-md p-4 sm:p-6 min-w-0">
           <div className="flex items-center justify-between mb-4">
             <FileText className="w-8 h-8 text-purple-600" />
             <Download className="w-5 h-5 text-gray-400" />

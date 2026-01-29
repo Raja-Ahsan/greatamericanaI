@@ -152,10 +152,10 @@ const AdminWallets = () => {
   };
 
   return (
-    <div>
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900">Wallets & Withdrawals</h1>
-        <p className="text-gray-600 mt-2">Manage vendor wallets and process withdrawal requests</p>
+    <div className="min-w-0">
+      <div className="mb-6 sm:mb-8">
+        <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Wallets & Withdrawals</h1>
+        <p className="text-gray-600 mt-1 sm:mt-2 text-sm sm:text-base">Manage vendor wallets and process withdrawal requests</p>
       </div>
 
       {error && (
@@ -170,11 +170,11 @@ const AdminWallets = () => {
         </div>
       )}
 
-      <div className="flex border-b border-gray-200 mb-6">
+      <div className="flex border-b border-gray-200 mb-4 sm:mb-6 overflow-x-auto">
         <button
           type="button"
           onClick={() => setActiveTab('wallets')}
-          className={`px-6 py-3 text-sm font-medium flex items-center gap-2 border-b-2 -mb-px ${
+          className={`px-4 sm:px-6 py-3 text-sm font-medium flex items-center gap-2 border-b-2 -mb-px flex-shrink-0 ${
             activeTab === 'wallets'
               ? 'text-blue-600 border-blue-600'
               : 'text-gray-500 border-transparent hover:text-gray-700'
@@ -186,7 +186,7 @@ const AdminWallets = () => {
         <button
           type="button"
           onClick={() => setActiveTab('withdrawals')}
-          className={`px-6 py-3 text-sm font-medium flex items-center gap-2 border-b-2 -mb-px ${
+          className={`px-4 sm:px-6 py-3 text-sm font-medium flex items-center gap-2 border-b-2 -mb-px flex-shrink-0 ${
             activeTab === 'withdrawals'
               ? 'text-blue-600 border-blue-600'
               : 'text-gray-500 border-transparent hover:text-gray-700'
@@ -212,36 +212,36 @@ const AdminWallets = () => {
               />
             </div>
           </div>
-          <div className="bg-white rounded-lg shadow-md overflow-hidden">
+          <div className="bg-white rounded-lg shadow-md overflow-hidden overflow-x-auto">
             {loading ? (
               <div className="flex items-center justify-center py-12">
                 <RefreshCw className="w-8 h-8 text-blue-600 animate-spin" />
               </div>
             ) : (
-              <div className="overflow-x-auto">
-                <table className="w-full">
+              <div className="overflow-x-auto min-w-0">
+                <table className="w-full min-w-[480px]">
                   <thead className="bg-gray-50">
                     <tr>
-                      <th className="text-left py-4 px-6 text-sm font-medium text-gray-700">User</th>
-                      <th className="text-left py-4 px-6 text-sm font-medium text-gray-700">Role</th>
-                      <th className="text-right py-4 px-6 text-sm font-medium text-gray-700">Balance</th>
-                      <th className="text-left py-4 px-6 text-sm font-medium text-gray-700">Status</th>
+                      <th className="text-left py-3 px-3 sm:py-4 sm:px-6 text-xs sm:text-sm font-medium text-gray-700">User</th>
+                      <th className="text-left py-3 px-3 sm:py-4 sm:px-6 text-xs sm:text-sm font-medium text-gray-700 hidden sm:table-cell">Role</th>
+                      <th className="text-right py-3 px-3 sm:py-4 sm:px-6 text-xs sm:text-sm font-medium text-gray-700">Balance</th>
+                      <th className="text-left py-3 px-3 sm:py-4 sm:px-6 text-xs sm:text-sm font-medium text-gray-700">Status</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-200">
                     {wallets.map((w) => (
                       <tr key={w.id} className="hover:bg-gray-50">
-                        <td className="py-4 px-6">
-                          <div>
-                            <p className="font-medium text-gray-900">{w.user?.name ?? '-'}</p>
-                            <p className="text-sm text-gray-500">{w.user?.email ?? '-'}</p>
+                        <td className="py-3 px-3 sm:py-4 sm:px-6">
+                          <div className="min-w-0">
+                            <p className="font-medium text-gray-900 truncate">{w.user?.name ?? '-'}</p>
+                            <p className="text-xs sm:text-sm text-gray-500 truncate max-w-[140px] sm:max-w-none">{w.user?.email ?? '-'}</p>
                           </div>
                         </td>
-                        <td className="py-4 px-6 text-sm text-gray-600">{w.user?.role ?? '-'}</td>
-                        <td className="py-4 px-6 text-right font-semibold text-gray-900">
+                        <td className="py-3 px-3 sm:py-4 sm:px-6 text-sm text-gray-600 hidden sm:table-cell">{w.user?.role ?? '-'}</td>
+                        <td className="py-3 px-3 sm:py-4 sm:px-6 text-right font-semibold text-gray-900 text-sm sm:text-base whitespace-nowrap">
                           {w.currency} {Number(w.balance).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                         </td>
-                        <td className="py-4 px-6">{statusBadge(w.status)}</td>
+                        <td className="py-3 px-3 sm:py-4 sm:px-6">{statusBadge(w.status)}</td>
                       </tr>
                     ))}
                   </tbody>
@@ -249,7 +249,7 @@ const AdminWallets = () => {
               </div>
             )}
             {walletMeta.last_page > 1 && (
-              <div className="flex justify-between items-center px-6 py-4 border-t border-gray-200">
+              <div className="flex flex-col sm:flex-row justify-between items-center gap-3 px-3 sm:px-6 py-3 sm:py-4 border-t border-gray-200">
                 <p className="text-sm text-gray-600">
                   Total {walletMeta.total} wallet(s)
                 </p>
@@ -304,34 +304,34 @@ const AdminWallets = () => {
                 <RefreshCw className="w-8 h-8 text-blue-600 animate-spin" />
               </div>
             ) : (
-              <div className="overflow-x-auto">
-                <table className="w-full">
+              <div className="overflow-x-auto min-w-0">
+                <table className="w-full min-w-[520px]">
                   <thead className="bg-gray-50">
                     <tr>
-                      <th className="text-left py-4 px-6 text-sm font-medium text-gray-700">Vendor</th>
-                      <th className="text-right py-4 px-6 text-sm font-medium text-gray-700">Amount</th>
-                      <th className="text-left py-4 px-6 text-sm font-medium text-gray-700">Requested</th>
-                      <th className="text-left py-4 px-6 text-sm font-medium text-gray-700">Status</th>
-                      <th className="text-right py-4 px-6 text-sm font-medium text-gray-700">Actions</th>
+                      <th className="text-left py-3 px-3 sm:py-4 sm:px-6 text-xs sm:text-sm font-medium text-gray-700">Vendor</th>
+                      <th className="text-right py-3 px-3 sm:py-4 sm:px-6 text-xs sm:text-sm font-medium text-gray-700">Amount</th>
+                      <th className="text-left py-3 px-3 sm:py-4 sm:px-6 text-xs sm:text-sm font-medium text-gray-700 hidden sm:table-cell">Requested</th>
+                      <th className="text-left py-3 px-3 sm:py-4 sm:px-6 text-xs sm:text-sm font-medium text-gray-700">Status</th>
+                      <th className="text-right py-3 px-3 sm:py-4 sm:px-6 text-xs sm:text-sm font-medium text-gray-700">Actions</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-200">
                     {withdrawals.map((w) => (
                       <tr key={w.id} className="hover:bg-gray-50">
-                        <td className="py-4 px-6">
-                          <div>
-                            <p className="font-medium text-gray-900">{w.user?.name ?? '-'}</p>
-                            <p className="text-sm text-gray-500">{w.user?.email ?? '-'}</p>
+                        <td className="py-3 px-3 sm:py-4 sm:px-6">
+                          <div className="min-w-0">
+                            <p className="font-medium text-gray-900 truncate">{w.user?.name ?? '-'}</p>
+                            <p className="text-xs sm:text-sm text-gray-500 truncate max-w-[140px] sm:max-w-none">{w.user?.email ?? '-'}</p>
                           </div>
                         </td>
-                        <td className="py-4 px-6 text-right font-semibold">
+                        <td className="py-3 px-3 sm:py-4 sm:px-6 text-right font-semibold text-sm sm:text-base whitespace-nowrap">
                           ${w.amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                         </td>
-                        <td className="py-4 px-6 text-sm text-gray-600">
+                        <td className="py-3 px-3 sm:py-4 sm:px-6 text-xs sm:text-sm text-gray-600 whitespace-nowrap hidden sm:table-cell">
                           {new Date(w.requested_at).toLocaleString()}
                         </td>
-                        <td className="py-4 px-6">{statusBadge(w.status)}</td>
-                        <td className="py-4 px-6 text-right">
+                        <td className="py-3 px-3 sm:py-4 sm:px-6">{statusBadge(w.status)}</td>
+                        <td className="py-3 px-3 sm:py-4 sm:px-6 text-right">
                           {(w.status === 'pending' || w.status === 'approved') && (
                             <button
                               type="button"
@@ -360,7 +360,7 @@ const AdminWallets = () => {
               </div>
             )}
             {withdrawalMeta.last_page > 1 && (
-              <div className="flex justify-between items-center px-6 py-4 border-t border-gray-200">
+              <div className="flex flex-col sm:flex-row justify-between items-center gap-3 px-3 sm:px-6 py-3 sm:py-4 border-t border-gray-200">
                 <p className="text-sm text-gray-600">Total {withdrawalMeta.total} request(s)</p>
                 <div className="flex gap-2">
                   <button

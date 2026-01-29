@@ -16,13 +16,13 @@ const AdminSettings = () => {
   };
 
   return (
-    <div>
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900">Settings</h1>
-        <p className="text-gray-600 mt-2">Manage platform settings and configuration</p>
+    <div className="min-w-0">
+      <div className="mb-6 sm:mb-8">
+        <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Settings</h1>
+        <p className="text-gray-600 mt-1 sm:mt-2 text-sm sm:text-base">Manage platform settings and configuration</p>
       </div>
 
-      <div className="bg-white rounded-lg shadow-md p-6">
+      <div className="bg-white rounded-lg shadow-md p-4 sm:p-6">
         <h2 className="text-xl font-semibold text-gray-900 mb-6 flex items-center gap-2">
           <Settings className="w-5 h-5" />
           Platform Settings

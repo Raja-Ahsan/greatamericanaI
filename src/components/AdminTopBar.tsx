@@ -40,14 +40,15 @@ const AdminTopBar = () => {
 
   return (
     <div className="bg-white shadow-md border-b border-gray-200 sticky top-0 z-30">
-      <div className="px-6 py-4 flex items-center justify-between">
+      <div className="px-4 sm:px-6 py-3 sm:py-4 flex items-center justify-between gap-2 min-w-0">
         {/* Left side - Website Link */}
         <Link
           to="/"
-          className="flex items-center gap-2 text-gray-700 hover:text-blue-600 transition-colors"
+          className="flex items-center gap-2 text-gray-700 hover:text-blue-600 transition-colors flex-shrink-0 min-w-0"
+          title="Visit Website"
         >
-          <Home className="w-5 h-5" />
-          <span className="font-medium">Visit Website</span>
+          <Home className="w-5 h-5 flex-shrink-0" />
+          <span className="font-medium hidden sm:inline truncate">Visit Website</span>
         </Link>
 
         {/* Right side - Admin Info */}

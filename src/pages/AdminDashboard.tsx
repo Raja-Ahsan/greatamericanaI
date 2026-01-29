@@ -137,19 +137,19 @@ const AdminDashboard = () => {
   ];
 
   return (
-    <div>
+    <div className="min-w-0">
       {/* Header */}
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900">Dashboard Overview</h1>
-        <p className="text-gray-600 mt-2">Welcome to the admin control panel</p>
+      <div className="mb-6 sm:mb-8">
+        <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Dashboard Overview</h1>
+        <p className="text-gray-600 mt-1 sm:mt-2 text-sm sm:text-base">Welcome to the admin control panel</p>
       </div>
 
       {/* Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mb-6 sm:mb-8">
         {statCards.map((stat, index) => {
           const Icon = stat.icon;
           const CardContent = (
-            <div className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow">
+            <div className="bg-white rounded-lg shadow-md p-4 sm:p-6 hover:shadow-lg transition-shadow min-w-0">
               <div className="flex items-center justify-between mb-4">
                 <div className={`w-12 h-12 ${stat.color} rounded-lg flex items-center justify-center text-white`}>
                   <Icon className="w-6 h-6" />
@@ -178,10 +178,10 @@ const AdminDashboard = () => {
       </div>
 
       {/* Recent Activity */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
         {/* Recent Users */}
-        <div className="bg-white rounded-lg shadow-md p-6">
-          <div className="flex items-center justify-between mb-4">
+        <div className="bg-white rounded-lg shadow-md p-4 sm:p-6 min-w-0 overflow-hidden">
+          <div className="flex items-center justify-between mb-4 gap-2 min-w-0">
             <h2 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
               <Users className="w-5 h-5 text-blue-600" />
               Recent Users
@@ -192,14 +192,14 @@ const AdminDashboard = () => {
           </div>
           <div className="space-y-3">
             {data.recent_users.slice(0, 5).map((user: any) => (
-              <div key={user.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center text-white font-semibold">
+              <div key={user.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg gap-2 min-w-0">
+                <div className="flex items-center gap-2 sm:gap-3 min-w-0">
+                  <div className="w-9 h-9 sm:w-10 sm:h-10 bg-blue-600 rounded-full flex items-center justify-center text-white font-semibold flex-shrink-0 text-sm">
                     {user.name.charAt(0).toUpperCase()}
                   </div>
-                  <div>
-                    <p className="font-medium text-gray-900">{user.name}</p>
-                    <p className="text-sm text-gray-600">{user.email}</p>
+                  <div className="min-w-0">
+                    <p className="font-medium text-gray-900 truncate">{user.name}</p>
+                    <p className="text-xs sm:text-sm text-gray-600 truncate">{user.email}</p>
                   </div>
                 </div>
                 <span className={`px-2 py-1 rounded text-xs font-medium ${
@@ -215,8 +215,8 @@ const AdminDashboard = () => {
         </div>
 
         {/* Recent Agents */}
-        <div className="bg-white rounded-lg shadow-md p-6">
-          <div className="flex items-center justify-between mb-4">
+        <div className="bg-white rounded-lg shadow-md p-4 sm:p-6 min-w-0 overflow-hidden">
+          <div className="flex items-center justify-between mb-4 gap-2 min-w-0">
             <h2 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
               <Package className="w-5 h-5 text-purple-600" />
               Recent Agents
@@ -227,14 +227,14 @@ const AdminDashboard = () => {
           </div>
           <div className="space-y-3">
             {data.recent_agents.slice(0, 5).map((agent: any) => (
-              <div key={agent.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
-                    <Package className="w-5 h-5 text-purple-600" />
+              <div key={agent.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg gap-2 min-w-0">
+                <div className="flex items-center gap-2 sm:gap-3 min-w-0">
+                  <div className="w-9 h-9 sm:w-10 sm:h-10 bg-purple-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                    <Package className="w-4 h-4 sm:w-5 sm:h-5 text-purple-600" />
                   </div>
-                  <div>
-                    <p className="font-medium text-gray-900">{agent.name}</p>
-                    <p className="text-sm text-gray-600">by {agent.seller?.name || 'Unknown'}</p>
+                  <div className="min-w-0">
+                    <p className="font-medium text-gray-900 truncate">{agent.name}</p>
+                    <p className="text-xs sm:text-sm text-gray-600 truncate">by {agent.seller?.name || 'Unknown'}</p>
                   </div>
                 </div>
                 <span className={`px-2 py-1 rounded text-xs font-medium ${
@@ -250,8 +250,8 @@ const AdminDashboard = () => {
         </div>
 
         {/* Recent Purchases */}
-        <div className="bg-white rounded-lg shadow-md p-6">
-          <div className="flex items-center justify-between mb-4">
+        <div className="bg-white rounded-lg shadow-md p-4 sm:p-6 min-w-0 overflow-hidden">
+          <div className="flex items-center justify-between mb-4 gap-2 min-w-0">
             <h2 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
               <ShoppingBag className="w-5 h-5 text-orange-600" />
               Recent Purchases
@@ -262,12 +262,12 @@ const AdminDashboard = () => {
           </div>
           <div className="space-y-3">
             {data.recent_purchases.slice(0, 5).map((purchase: any) => (
-              <div key={purchase.id} className="p-3 bg-gray-50 rounded-lg">
-                <div className="flex items-center justify-between mb-1">
-                  <p className="font-medium text-gray-900">{purchase.agent_name}</p>
-                  <p className="font-semibold text-gray-900">${parseFloat(purchase.total_amount).toFixed(2)}</p>
+              <div key={purchase.id} className="p-3 bg-gray-50 rounded-lg min-w-0">
+                <div className="flex items-center justify-between gap-2 mb-1 min-w-0">
+                  <p className="font-medium text-gray-900 truncate">{purchase.agent_name}</p>
+                  <p className="font-semibold text-gray-900 flex-shrink-0">${parseFloat(purchase.total_amount).toFixed(2)}</p>
                 </div>
-                <p className="text-sm text-gray-600">{purchase.user?.email || 'N/A'}</p>
+                <p className="text-xs sm:text-sm text-gray-600 truncate">{purchase.user?.email || 'N/A'}</p>
                 <p className="text-xs text-gray-500 mt-1">
                   {new Date(purchase.purchase_date).toLocaleDateString()}
                 </p>

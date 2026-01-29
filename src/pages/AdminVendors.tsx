@@ -194,59 +194,55 @@ const AdminVendors = () => {
   };
 
   return (
-    <div>
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div className="min-w-0">
+      <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-8">
         {/* Header */}
-        <div className="mb-8">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-3xl font-bold text-gray-900">Vendor Management</h1>
-              <p className="text-gray-600 mt-2">Manage all vendor accounts</p>
-            </div>
-          </div>
+        <div className="mb-6 sm:mb-8">
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Vendor Management</h1>
+          <p className="text-gray-600 mt-1 sm:mt-2 text-sm sm:text-base">Manage all vendor accounts</p>
         </div>
 
         {/* Statistics Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-          <div className="bg-white rounded-lg shadow-md p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600">Total Vendors</p>
-                <p className="text-2xl font-bold text-gray-900">{stats.total}</p>
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 mb-4 sm:mb-6">
+          <div className="bg-white rounded-lg shadow-md p-4 sm:p-6">
+            <div className="flex items-center justify-between gap-2">
+              <div className="min-w-0">
+                <p className="text-xs sm:text-sm text-gray-600 truncate">Total Vendors</p>
+                <p className="text-xl sm:text-2xl font-bold text-gray-900">{stats.total}</p>
               </div>
-              <Store className="w-8 h-8 text-blue-600" />
+              <Store className="w-6 h-6 sm:w-8 sm:h-8 text-blue-600 flex-shrink-0" />
             </div>
           </div>
-          <div className="bg-white rounded-lg shadow-md p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600">Verified</p>
-                <p className="text-2xl font-bold text-green-600">{stats.verified}</p>
+          <div className="bg-white rounded-lg shadow-md p-4 sm:p-6">
+            <div className="flex items-center justify-between gap-2">
+              <div className="min-w-0">
+                <p className="text-xs sm:text-sm text-gray-600 truncate">Verified</p>
+                <p className="text-xl sm:text-2xl font-bold text-green-600">{stats.verified}</p>
               </div>
-              <CheckCircle className="w-8 h-8 text-green-600" />
+              <CheckCircle className="w-6 h-6 sm:w-8 sm:h-8 text-green-600 flex-shrink-0" />
             </div>
           </div>
-          <div className="bg-white rounded-lg shadow-md p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600">Unverified</p>
-                <p className="text-2xl font-bold text-yellow-600">{stats.unverified}</p>
+          <div className="bg-white rounded-lg shadow-md p-4 sm:p-6">
+            <div className="flex items-center justify-between gap-2">
+              <div className="min-w-0">
+                <p className="text-xs sm:text-sm text-gray-600 truncate">Unverified</p>
+                <p className="text-xl sm:text-2xl font-bold text-yellow-600">{stats.unverified}</p>
               </div>
-              <XCircle className="w-8 h-8 text-yellow-600" />
+              <XCircle className="w-6 h-6 sm:w-8 sm:h-8 text-yellow-600 flex-shrink-0" />
             </div>
           </div>
         </div>
 
         {/* Filters */}
-        <div className="bg-white rounded-lg shadow-md p-6 mb-6">
+        <div className="bg-white rounded-lg shadow-md p-4 sm:p-6 mb-4 sm:mb-6">
           <div className="relative">
-            <Search className="absolute left-3 top-3 w-5 h-5 text-gray-400" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 sm:w-5 sm:h-5 text-gray-400" />
             <input
               type="text"
               placeholder="Search vendors by name or email..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full pl-9 sm:pl-10 pr-3 sm:pr-4 py-2 text-sm sm:text-base border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
         </div>
@@ -264,7 +260,7 @@ const AdminVendors = () => {
         )}
 
         {/* Vendors Table */}
-        <div className="bg-white rounded-lg shadow-md overflow-hidden">
+        <div className="bg-white rounded-lg shadow-md overflow-hidden overflow-x-auto">
           {loading ? (
             <div className="text-center py-12">
               <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
@@ -277,49 +273,49 @@ const AdminVendors = () => {
             </div>
           ) : (
             <>
-              <div className="overflow-x-auto">
-                <table className="w-full">
+              <div className="overflow-x-auto min-w-0">
+                <table className="w-full min-w-[520px]">
                   <thead className="bg-gray-50">
                     <tr>
-                      <th className="text-left py-4 px-6 text-sm font-medium text-gray-700">Vendor</th>
-                      <th className="text-left py-4 px-6 text-sm font-medium text-gray-700">Email</th>
-                      <th className="text-left py-4 px-6 text-sm font-medium text-gray-700">Status</th>
-                      <th className="text-left py-4 px-6 text-sm font-medium text-gray-700">Joined</th>
-                      <th className="text-left py-4 px-6 text-sm font-medium text-gray-700">Actions</th>
+                      <th className="text-left py-3 px-3 sm:py-4 sm:px-6 text-xs sm:text-sm font-medium text-gray-700">Vendor</th>
+                      <th className="text-left py-3 px-3 sm:py-4 sm:px-6 text-xs sm:text-sm font-medium text-gray-700">Email</th>
+                      <th className="text-left py-3 px-3 sm:py-4 sm:px-6 text-xs sm:text-sm font-medium text-gray-700">Status</th>
+                      <th className="text-left py-3 px-3 sm:py-4 sm:px-6 text-xs sm:text-sm font-medium text-gray-700 hidden sm:table-cell">Joined</th>
+                      <th className="text-left py-3 px-3 sm:py-4 sm:px-6 text-xs sm:text-sm font-medium text-gray-700">Actions</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-200">
                     {vendors.map((vendor) => (
                       <tr key={vendor.id} className="hover:bg-gray-50">
-                        <td className="py-4 px-6">
-                          <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center text-white font-semibold">
+                        <td className="py-3 px-3 sm:py-4 sm:px-6">
+                          <div className="flex items-center gap-2 sm:gap-3 min-w-0">
+                            <div className="w-8 h-8 sm:w-10 sm:h-10 bg-blue-600 rounded-full flex items-center justify-center text-white font-semibold text-sm flex-shrink-0">
                               {vendor.name.charAt(0).toUpperCase()}
                             </div>
-                            <span className="font-medium text-gray-900">{vendor.name}</span>
+                            <span className="font-medium text-gray-900 truncate">{vendor.name}</span>
                           </div>
                         </td>
-                        <td className="py-4 px-6 text-gray-600">{vendor.email}</td>
-                        <td className="py-4 px-6">
-                          <div className="flex items-center gap-2">
+                        <td className="py-3 px-3 sm:py-4 sm:px-6 text-gray-600 text-sm truncate max-w-[140px] sm:max-w-none">{vendor.email}</td>
+                        <td className="py-3 px-3 sm:py-4 sm:px-6">
+                          <div className="flex items-center gap-1 sm:gap-2">
                             {vendor.verified ? (
                               <>
-                                <CheckCircle className="w-5 h-5 text-green-600" />
-                                <span className="text-sm text-green-600">Verified</span>
+                                <CheckCircle className="w-4 h-4 sm:w-5 sm:h-5 text-green-600 flex-shrink-0" />
+                                <span className="text-xs sm:text-sm text-green-600">Verified</span>
                               </>
                             ) : (
                               <>
-                                <XCircle className="w-5 h-5 text-gray-400" />
-                                <span className="text-sm text-gray-400">Unverified</span>
+                                <XCircle className="w-4 h-4 sm:w-5 sm:h-5 text-gray-400 flex-shrink-0" />
+                                <span className="text-xs sm:text-sm text-gray-400">Unverified</span>
                               </>
                             )}
                           </div>
                         </td>
-                        <td className="py-4 px-6 text-gray-600 text-sm">
+                        <td className="py-3 px-3 sm:py-4 sm:px-6 text-gray-600 text-xs sm:text-sm whitespace-nowrap hidden sm:table-cell">
                           {vendor.created_at ? new Date(vendor.created_at).toLocaleDateString() : 'N/A'}
                         </td>
-                        <td className="py-4 px-6">
-                          <div className="flex items-center gap-3">
+                        <td className="py-3 px-3 sm:py-4 sm:px-6">
+                          <div className="flex flex-wrap items-center gap-1 sm:gap-3">
                             <button
                               onClick={() => handleView(vendor)}
                               className="text-blue-600 hover:text-blue-700 p-1 rounded hover:bg-blue-50"
@@ -352,11 +348,11 @@ const AdminVendors = () => {
 
               {/* Pagination */}
               {pagination && pagination.last_page > 1 && (
-                <div className="bg-gray-50 px-6 py-4 flex items-center justify-between border-t border-gray-200">
-                  <div className="text-sm text-gray-700">
-                    Showing {((pagination.current_page - 1) * pagination.per_page) + 1} to {Math.min(pagination.current_page * pagination.per_page, pagination.total)} of {pagination.total} vendors
+                <div className="bg-gray-50 px-3 sm:px-6 py-3 sm:py-4 flex flex-col sm:flex-row items-center justify-between gap-3 border-t border-gray-200">
+                  <div className="text-xs sm:text-sm text-gray-700 text-center sm:text-left order-2 sm:order-1">
+                    Showing {((pagination.current_page - 1) * pagination.per_page) + 1}–{Math.min(pagination.current_page * pagination.per_page, pagination.total)} of {pagination.total} vendors
                   </div>
-                  <div className="flex gap-2">
+                  <div className="flex gap-2 order-1 sm:order-2">
                     <button
                       onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
                       disabled={pagination.current_page === 1}

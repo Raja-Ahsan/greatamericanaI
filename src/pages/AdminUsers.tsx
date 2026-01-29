@@ -263,18 +263,18 @@ const AdminUsers = () => {
   };
 
   return (
-    <div>
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div className="min-w-0">
+      <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-8">
         {/* Header */}
-        <div className="mb-8">
-          <div className="flex items-center justify-between">
+        <div className="mb-6 sm:mb-8">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900">User Management</h1>
-              <p className="text-gray-600 mt-2">Manage all platform users</p>
+              <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">User Management</h1>
+              <p className="text-gray-600 mt-1 sm:mt-2 text-sm sm:text-base">Manage all platform users</p>
             </div>
             <button
               onClick={handleCreate}
-              className="bg-blue-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-blue-700 transition-colors flex items-center gap-2"
+              className="bg-blue-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-blue-700 transition-colors flex items-center justify-center gap-2 flex-shrink-0"
             >
               <UserPlus className="w-4 h-4" />
               Add User
@@ -283,20 +283,20 @@ const AdminUsers = () => {
         </div>
 
         {/* Statistics Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 mb-6">
-          <div className="bg-white rounded-lg shadow-md p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600">Total Users</p>
-                <p className="text-2xl font-bold text-gray-900">{stats.total}</p>
+        <div className="grid grid-cols-2 lg:grid-cols-5 gap-3 sm:gap-4 mb-4 sm:mb-6">
+          <div className="bg-white rounded-lg shadow-md p-4 sm:p-6">
+            <div className="flex items-center justify-between gap-2">
+              <div className="min-w-0">
+                <p className="text-xs sm:text-sm text-gray-600 truncate">Total Users</p>
+                <p className="text-xl sm:text-2xl font-bold text-gray-900">{stats.total}</p>
               </div>
-              <Users className="w-8 h-8 text-blue-600" />
+              <Users className="w-6 h-6 sm:w-8 sm:h-8 text-blue-600 flex-shrink-0" />
             </div>
           </div>
-          <div className="bg-white rounded-lg shadow-md p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600">Admins</p>
+          <div className="bg-white rounded-lg shadow-md p-4 sm:p-6">
+            <div className="flex items-center justify-between gap-2">
+              <div className="min-w-0">
+                <p className="text-xs sm:text-sm text-gray-600 truncate">Admins</p>
                 <p className="text-2xl font-bold text-red-600">{stats.admins}</p>
               </div>
               <div className="w-8 h-8 bg-red-100 rounded-full flex items-center justify-center">
@@ -304,10 +304,10 @@ const AdminUsers = () => {
               </div>
             </div>
           </div>
-          <div className="bg-white rounded-lg shadow-md p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600">Vendors</p>
+          <div className="bg-white rounded-lg shadow-md p-4 sm:p-6">
+            <div className="flex items-center justify-between gap-2">
+              <div className="min-w-0">
+                <p className="text-xs sm:text-sm text-gray-600 truncate">Vendors</p>
                 <p className="text-2xl font-bold text-blue-600">{stats.vendors}</p>
               </div>
               <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
@@ -315,10 +315,10 @@ const AdminUsers = () => {
               </div>
             </div>
           </div>
-          <div className="bg-white rounded-lg shadow-md p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600">Customers</p>
+          <div className="bg-white rounded-lg shadow-md p-4 sm:p-6">
+            <div className="flex items-center justify-between gap-2">
+              <div className="min-w-0">
+                <p className="text-xs sm:text-sm text-gray-600 truncate">Customers</p>
                 <p className="text-2xl font-bold text-green-600">{stats.customers}</p>
               </div>
               <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
@@ -326,10 +326,10 @@ const AdminUsers = () => {
               </div>
             </div>
           </div>
-          <div className="bg-white rounded-lg shadow-md p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600">Verified</p>
+          <div className="bg-white rounded-lg shadow-md p-4 sm:p-6">
+            <div className="flex items-center justify-between gap-2">
+              <div className="min-w-0">
+                <p className="text-xs sm:text-sm text-gray-600 truncate">Verified</p>
                 <p className="text-2xl font-bold text-purple-600">{stats.verified}</p>
               </div>
               <CheckCircle className="w-8 h-8 text-purple-600" />
@@ -392,11 +392,11 @@ const AdminUsers = () => {
             </div>
           ) : (
             <>
-              <div className="overflow-x-auto">
-                <table className="w-full">
+              <div className="overflow-x-auto min-w-0">
+                <table className="w-full min-w-[600px]">
                   <thead className="bg-gray-50">
                     <tr>
-                      <th className="text-left py-4 px-6 text-sm font-medium text-gray-700">User</th>
+                      <th className="text-left py-3 px-3 sm:py-4 sm:px-6 text-xs sm:text-sm font-medium text-gray-700">User</th>
                       <th className="text-left py-4 px-6 text-sm font-medium text-gray-700">Email</th>
                       <th className="text-left py-4 px-6 text-sm font-medium text-gray-700">Role</th>
                       <th className="text-left py-4 px-6 text-sm font-medium text-gray-700">Status</th>
@@ -473,11 +473,11 @@ const AdminUsers = () => {
 
               {/* Pagination */}
               {pagination && pagination.last_page > 1 && (
-                <div className="bg-gray-50 px-6 py-4 flex items-center justify-between border-t border-gray-200">
-                  <div className="text-sm text-gray-700">
-                    Showing {((pagination.current_page - 1) * pagination.per_page) + 1} to {Math.min(pagination.current_page * pagination.per_page, pagination.total)} of {pagination.total} users
+                <div className="bg-gray-50 px-3 sm:px-6 py-3 sm:py-4 flex flex-col sm:flex-row items-center justify-between gap-3 border-t border-gray-200">
+                  <div className="text-xs sm:text-sm text-gray-700 text-center sm:text-left order-2 sm:order-1">
+                    Showing {((pagination.current_page - 1) * pagination.per_page) + 1}–{Math.min(pagination.current_page * pagination.per_page, pagination.total)} of {pagination.total} users
                   </div>
-                  <div className="flex gap-2">
+                  <div className="flex gap-2 order-1 sm:order-2">
                     <button
                       onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
                       disabled={pagination.current_page === 1}
