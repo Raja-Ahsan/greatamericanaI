@@ -75,7 +75,8 @@ Route::middleware(['auth:sanctum', 'throttle:60,1'])->group(function () { // 60 
     Route::middleware('role:admin')->prefix('admin')->group(function () {
         // Admin Dashboard
         Route::get('/dashboard', [\App\Http\Controllers\Admin\AdminController::class, 'dashboard']);
-        
+        Route::get('/analytics', [\App\Http\Controllers\Admin\AdminController::class, 'analytics']);
+
         // User Management
         Route::apiResource('users', \App\Http\Controllers\Admin\UserController::class);
         

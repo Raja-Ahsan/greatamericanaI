@@ -5,12 +5,9 @@ import {
   ShoppingBag,
   DollarSign,
   TrendingUp,
-  Eye,
-  CheckCircle,
-  Clock,
   ArrowUpRight,
   ArrowDownRight,
-  Activity
+  Banknote,
 } from 'lucide-react';
 import api from '../utils/api';
 import { Link } from 'react-router-dom';
@@ -22,6 +19,7 @@ interface AdminStats {
   pending_agents: number;
   total_purchases: number;
   total_revenue: number;
+  admin_profit: number;
   total_vendors: number;
   total_customers: number;
 }
@@ -88,11 +86,19 @@ const AdminDashboard = () => {
     },
     {
       title: 'Total Revenue',
-      value: `$${stats.total_revenue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
+      value: `$${(stats.total_revenue ?? 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
       icon: DollarSign,
       color: 'bg-green-500',
-      change: '+8.2%',
-      trend: 'up',
+      change: 'Gross sales',
+      trend: 'neutral',
+    },
+    {
+      title: 'Admin Profit',
+      value: `$${(stats.admin_profit ?? 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
+      icon: Banknote,
+      color: 'bg-emerald-600',
+      change: '15% platform fee',
+      trend: 'neutral',
     },
     {
       title: 'Active Agents',

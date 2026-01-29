@@ -226,19 +226,24 @@ const VendorAnalytics = () => {
             </div>
           ) : (
             <>
-              <div className="flex items-end gap-1 sm:gap-2 h-48">
-                {chartData.map((d) => (
-                  <div key={d.date} className="flex-1 flex flex-col items-center gap-1 min-w-0">
-                    <span className="text-xs text-gray-500 truncate w-full text-center" title={d.date}>
-                      {new Date(d.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
-                    </span>
-                    <div
-                      className="w-full bg-green-500 rounded-t transition-all hover:bg-green-600"
-                      style={{ height: `${Math.max((d.revenue / maxRevenue) * 100, 4)}%` }}
-                      title={`$${d.revenue.toFixed(2)} · ${d.sales_count} sale(s)`}
-                    />
-                  </div>
-                ))}
+              <div className="flex gap-1 sm:gap-2 h-52">
+                {chartData.map((d) => {
+                  const pct = Math.max((d.revenue / maxRevenue) * 100, 4);
+                  return (
+                    <div key={d.date} className="flex-1 flex flex-col items-center h-full min-w-0">
+                      <span className="text-xs text-gray-500 truncate w-full text-center flex-shrink-0" title={d.date}>
+                        {new Date(d.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                      </span>
+                      <div className="flex-1 min-h-0 w-full flex flex-col justify-end">
+                        <div
+                          className="w-full bg-green-500 rounded-t transition-all hover:bg-green-600"
+                          style={{ height: `${pct}%` }}
+                          title={`$${d.revenue.toFixed(2)} · ${d.sales_count} sale(s)`}
+                        />
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
               <div className="mt-2 flex justify-between text-xs text-gray-500">
                 <span>$0</span>
