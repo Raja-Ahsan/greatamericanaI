@@ -32,7 +32,6 @@ const Checkout = () => {
   const [platformName, setPlatformName] = useState('GreatAmerican.Ai');
   const [taxRate, setTaxRate] = useState(10);
   const [gateways, setGateways] = useState<GatewayOption[]>([]);
-  const [defaultGateway, setDefaultGateway] = useState('stripe');
   const [selectedGateway, setSelectedGateway] = useState<string>('');
   const [loadingSettings, setLoadingSettings] = useState(true);
   const [submitting, setSubmitting] = useState(false);
@@ -80,7 +79,6 @@ const Checkout = () => {
           const list = gatewaysRes.data.gateways ?? [];
           setGateways(list);
           const def = gatewaysRes.data.default_gateway ?? 'stripe';
-          setDefaultGateway(def);
           setSelectedGateway(def);
           if (list.length > 0 && !list.some((g) => g.key === def)) {
             setSelectedGateway(list[0].key);
@@ -91,7 +89,6 @@ const Checkout = () => {
           { key: 'stripe', name: 'Stripe', region: 'Global', logo_url: '' },
           { key: 'paypal', name: 'PayPal', region: 'Global', logo_url: '' },
         ]);
-        setDefaultGateway('stripe');
         setSelectedGateway('stripe');
       } finally {
         setLoadingSettings(false);
