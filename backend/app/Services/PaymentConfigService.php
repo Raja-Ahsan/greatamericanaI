@@ -67,6 +67,21 @@ class PaymentConfigService
     ];
 
     /**
+     * Default base URLs for gateways (package needs these to call gateway APIs).
+     * Used when DB payment_settings do not set base_url.
+     */
+    protected const DEFAULT_BASE_URLS = [
+        'stripe' => [
+            'test_base_url' => 'https://api.stripe.com',
+            'live_base_url' => 'https://api.stripe.com',
+        ],
+        'paypal' => [
+            'sandbox_base_url' => 'https://api-m.sandbox.paypal.com',
+            'live_base_url' => 'https://api-m.paypal.com',
+        ],
+    ];
+
+    /**
      * Merge payment_settings from DB into config so the payment package uses them.
      * Call from AppServiceProvider::boot().
      */
@@ -113,7 +128,8 @@ class PaymentConfigService
 
             $credentials = $config['credentials'] ?? [];
             $mapping = self::CREDENTIAL_TO_CONFIG[$gatewayKey] ?? [];
-            $merged = array_merge(config('payments.' . $gatewayKey, []), [
+            $defaults = self::DEFAULT_BASE_URLS[$gatewayKey] ?? [];
+            $merged = array_merge(config('payments.' . $gatewayKey, []), $defaults, [
                 'mode' => $mode,
             ]);
 

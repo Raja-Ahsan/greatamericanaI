@@ -511,6 +511,11 @@ const AdminSettings = () => {
                         <Key className="w-4 h-4" />
                         API keys ({normalizeMode(config.mode) === 'live' ? 'Live' : 'Sandbox'})
                       </label>
+                      {gatewayKey === 'stripe' && (
+                        <div className="mb-3 p-3 bg-amber-50 border border-amber-200 rounded-lg text-sm text-amber-800">
+                          <strong>Stripe keys:</strong> Use the <strong>Secret key</strong> (starts with <code>sk_test_</code> or <code>sk_live_</code>) in &quot;Test Secret Key&quot; and the <strong>Publishable key</strong> (starts with <code>pk_test_</code> or <code>pk_live_</code>) in &quot;Test Publishable Key&quot;. Do not put the secret key in the publishable field—checkout will fail.
+                        </div>
+                      )}
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         {fields.map((field) => (
                           <div key={field.key}>

@@ -104,7 +104,16 @@ $gateway = Payment::gateway($defaultGateway);
 // Then use the gateway per arafadev/payment-gateways docs (pay, verify, etc.)
 ```
 
-Set callback/success/failed URLs in `config/payments.php` as required by the package.
+**Redirect URLs** are set at runtime in `CheckoutController::createPayment()` so each payment has a unique callback with `payment_token`. The backend uses:
+
+- **Success/callback URL**: `APP_URL/api/payment/callback?payment_token=...&gateway=...` (backend; gateway redirects here after payment).
+- **Failed/cancel URL**: `FRONTEND_URL/checkout?payment=failed` (frontend; user sees checkout with an error message).
+
+Set **`FRONTEND_URL`** in `backend/.env` (e.g. `FRONTEND_URL=http://localhost:5173`) so failed or cancelled payments redirect to your frontend checkout page instead of the backend. Default if unset: `http://localhost:5173`.
+
+## Failed and cancelled payments
+
+When a customer cancels on the gateway (e.g. PayPal “Cancel and return”) or payment fails, the gateway redirects to **failed_url**, which is the frontend checkout page with `?payment=failed`. The frontend also handles `?payment=expired` and `?payment=invalid` (from backend callback) and shows clear messages. Ensure `FRONTEND_URL` in `.env` matches your frontend origin so these redirects work.
 
 ## API
 

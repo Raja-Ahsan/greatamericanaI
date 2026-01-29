@@ -8,6 +8,7 @@ import Marketplace from './pages/Marketplace';
 import AgentDetail from './pages/AgentDetail';
 import Cart from './pages/Cart';
 import Checkout from './pages/Checkout';
+import OrderSuccess from './pages/OrderSuccess';
 import SellAgent from './pages/SellAgent';
 import Dashboard from './pages/Dashboard';
 import Profile from './pages/Profile';
@@ -110,6 +111,14 @@ function AppContent() {
           element={
             <ProtectedRoute>
               <Checkout />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/order-success"
+          element={
+            <ProtectedRoute>
+              <OrderSuccess />
             </ProtectedRoute>
           }
         />

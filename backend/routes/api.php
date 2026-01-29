@@ -3,6 +3,7 @@
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\AgentController;
 use App\Http\Controllers\Api\CartController;
+use App\Http\Controllers\Api\CheckoutController;
 use App\Http\Controllers\Api\PaymentGatewayController;
 use App\Http\Controllers\Api\PlatformSettingsController;
 use App\Http\Controllers\Api\PurchaseController;
@@ -23,6 +24,9 @@ Route::get('/payment-gateways', [PaymentGatewayController::class, 'index']);
 
 // Public platform display settings (seller commission %, platform fee %, name – set by admin)
 Route::get('/platform-settings', [PlatformSettingsController::class, 'index']);
+
+// Payment callback (Stripe/PayPal redirect here after payment – no auth)
+Route::get('/payment/callback', [CheckoutController::class, 'callback']);
 
 // Protected routes (require authentication) with rate limiting
 Route::middleware(['auth:sanctum', 'throttle:60,1'])->group(function () { // 60 requests per minute
@@ -45,8 +49,12 @@ Route::middleware(['auth:sanctum', 'throttle:60,1'])->group(function () { // 60 
     // Purchase routes (Customer)
     Route::prefix('purchases')->group(function () {
         Route::get('/', [PurchaseController::class, 'index']);
+        Route::get('/by-token', [PurchaseController::class, 'byToken']);
         Route::post('/', [PurchaseController::class, 'store']);
     });
+
+    // Checkout: create payment and get redirect URL to gateway (Stripe, PayPal, etc.)
+    Route::post('/checkout/create-payment', [CheckoutController::class, 'createPayment']);
 
     // Agent management routes (Vendor & Admin) with stricter rate limiting for file uploads
     Route::middleware('role:vendor,admin')->group(function () {

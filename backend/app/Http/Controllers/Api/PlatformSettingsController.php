@@ -20,6 +20,7 @@ class PlatformSettingsController extends Controller
             'platformName' => 'GreatAmerican.Ai',
             'platformFee' => 15,
             'sellerCommission' => 85,
+            'taxRate' => 10,
         ]);
 
         if (! is_array($platform)) {
@@ -27,6 +28,7 @@ class PlatformSettingsController extends Controller
                 'platformName' => 'GreatAmerican.Ai',
                 'platformFee' => 15,
                 'sellerCommission' => 85,
+                'taxRate' => 10,
             ];
         }
 
@@ -36,6 +38,7 @@ class PlatformSettingsController extends Controller
                 'platformName' => $platform['platformName'] ?? 'GreatAmerican.Ai',
                 'platformFee' => (int) ($platform['platformFee'] ?? 15),
                 'sellerCommission' => (int) ($platform['sellerCommission'] ?? 85),
+                'taxRate' => (int) ($platform['taxRate'] ?? 10),
             ],
         ]);
     }

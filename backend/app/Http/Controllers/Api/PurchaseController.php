@@ -42,6 +42,52 @@ class PurchaseController extends Controller
     }
 
     /**
+     * Get purchases by encrypted order-success token (validates token and user).
+     */
+    public function byToken(Request $request)
+    {
+        $token = $request->query('token');
+        if (! $token) {
+            return response()->json(['success' => false, 'message' => 'Missing token'], 400);
+        }
+
+        try {
+            $decrypted = \Illuminate\Support\Facades\Crypt::decryptString($token);
+            $payload = json_decode($decrypted, true);
+            if (! is_array($payload) || empty($payload['order_ids']) || empty($payload['user_id'])) {
+                return response()->json(['success' => false, 'message' => 'Invalid token'], 400);
+            }
+            $orderIds = $payload['order_ids'];
+            $userId = (int) $payload['user_id'];
+            if ($userId !== (int) $request->user()->id) {
+                return response()->json(['success' => false, 'message' => 'Unauthorized'], 403);
+            }
+        } catch (\Throwable $e) {
+            return response()->json(['success' => false, 'message' => 'Invalid or expired token'], 400);
+        }
+
+        $purchases = Purchase::where('user_id', $userId)
+            ->whereIn('id', $orderIds)
+            ->orderBy('purchase_date', 'desc')
+            ->get();
+
+        return response()->json([
+            'success' => true,
+            'data' => $purchases->map(function ($purchase) {
+                return [
+                    'id' => $purchase->id,
+                    'agentId' => $purchase->agent_id,
+                    'agentName' => $purchase->agent_name,
+                    'price' => (float) $purchase->price,
+                    'quantity' => $purchase->quantity,
+                    'totalAmount' => (float) $purchase->total_amount,
+                    'purchaseDate' => $purchase->purchase_date->toISOString(),
+                ];
+            }),
+        ]);
+    }
+
+    /**
      * Complete purchase from cart
      */
     public function store(Request $request)

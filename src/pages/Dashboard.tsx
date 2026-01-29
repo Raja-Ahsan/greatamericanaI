@@ -2,11 +2,13 @@ import { useState, useEffect } from 'react';
 import {
   DollarSign, TrendingUp, ShoppingBag, Eye, Users, Package,
   CheckCircle, XCircle, UserPlus,
-  BarChart3, ArrowUpRight, ArrowDownRight
+  BarChart3, ArrowUpRight, ArrowDownRight,
+  Download, ShoppingCart, Store, User
 } from 'lucide-react';
 import { useStore } from '../store/useStore';
 import api from '../utils/api';
 import { Link } from 'react-router-dom';
+import { userDataService, type Purchase } from '../services/userDataService';
 
 interface AdminStats {
   total_users: number;
@@ -26,15 +28,20 @@ interface AdminDashboardData {
   recent_purchases: any[];
 }
 
+const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8000/api';
+
 const Dashboard = () => {
-  const { user } = useStore();
+  const { user, getTotalItems } = useStore();
   const [adminData, setAdminData] = useState<AdminDashboardData | null>(null);
   const [vendorData, setVendorData] = useState<any>(null);
+  const [customerPurchases, setCustomerPurchases] = useState<Purchase[]>([]);
   const [loading, setLoading] = useState(true);
+  const [downloading, setDownloading] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<'overview' | 'users' | 'agents' | 'purchases'>('overview');
   
   const isAdmin = user?.role === 'admin';
   const isVendor = user?.role === 'vendor';
+  const isCustomer = user && !isAdmin && !isVendor;
 
   useEffect(() => {
     const fetchData = async () => {
@@ -50,6 +57,9 @@ const Dashboard = () => {
           if (response.success && response.data) {
             setVendorData(response.data);
           }
+        } else if (isCustomer) {
+          const list = await userDataService.getPurchases();
+          setCustomerPurchases(list);
         }
       } catch (error) {
         console.error('Error fetching dashboard data:', error);
@@ -61,7 +71,7 @@ const Dashboard = () => {
     if (user) {
       fetchData();
     }
-  }, [user, isAdmin, isVendor]);
+  }, [user, isAdmin, isVendor, isCustomer]);
   
   if (!user) {
     return null;
@@ -583,6 +593,208 @@ const Dashboard = () => {
       </div>
     </div>
   );
+  }
+
+  // Customer Dashboard
+  if (isCustomer && user) {
+    const totalSpent = customerPurchases.reduce((sum, p) => sum + (typeof p.totalAmount === 'number' ? p.totalAmount : p.price * (p.quantity || 1)), 0);
+    const cartCount = getTotalItems();
+
+    const handleDownload = async (agentId: string, agentName: string) => {
+      setDownloading(agentId);
+      try {
+        const token = localStorage.getItem('auth_token');
+        const response = await fetch(`${API_BASE}/agents/${agentId}/download`, {
+          method: 'GET',
+          headers: token ? { Authorization: `Bearer ${token}` } : {},
+        });
+        if (response.ok) {
+          const blob = await response.blob();
+          const url = window.URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = `${agentName.replace(/\s+/g, '_')}_files.zip`;
+          document.body.appendChild(a);
+          a.click();
+          window.URL.revokeObjectURL(url);
+          document.body.removeChild(a);
+        } else {
+          const err = await response.json().catch(() => ({}));
+          alert(err.message || 'Download failed');
+        }
+      } catch (e) {
+        alert(e instanceof Error ? e.message : 'Download failed');
+      } finally {
+        setDownloading(null);
+      }
+    };
+
+    return (
+      <div className="min-h-screen bg-gray-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <div className="mb-8">
+            <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
+            <p className="text-gray-600 mt-2">Welcome back, {user.name}!</p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-gray-600 mb-1">Total orders</p>
+                  <p className="text-2xl font-bold text-gray-900">{customerPurchases.length}</p>
+                </div>
+                <div className="w-12 h-12 rounded-lg bg-blue-100 text-blue-600 flex items-center justify-center">
+                  <ShoppingBag className="w-6 h-6" />
+                </div>
+              </div>
+            </div>
+            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-gray-600 mb-1">Total spent</p>
+                  <p className="text-2xl font-bold text-gray-900">${totalSpent.toFixed(2)}</p>
+                </div>
+                <div className="w-12 h-12 rounded-lg bg-green-100 text-green-600 flex items-center justify-center">
+                  <DollarSign className="w-6 h-6" />
+                </div>
+              </div>
+            </div>
+            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+              <Link to="/cart" className="block">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm text-gray-600 mb-1">Cart items</p>
+                    <p className="text-2xl font-bold text-gray-900">{cartCount}</p>
+                  </div>
+                  <div className="w-12 h-12 rounded-lg bg-amber-100 text-amber-600 flex items-center justify-center">
+                    <ShoppingCart className="w-6 h-6" />
+                  </div>
+                </div>
+              </Link>
+            </div>
+            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+              <Link to="/marketplace" className="block">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm text-gray-600 mb-1">Browse</p>
+                    <p className="text-lg font-bold text-gray-900">Marketplace</p>
+                  </div>
+                  <div className="w-12 h-12 rounded-lg bg-purple-100 text-purple-600 flex items-center justify-center">
+                    <Store className="w-6 h-6" />
+                  </div>
+                </div>
+              </Link>
+            </div>
+          </div>
+
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden mb-8">
+            <div className="px-6 py-4 border-b border-gray-200 flex items-center justify-between flex-wrap gap-2">
+              <h2 className="text-xl font-semibold text-gray-900 flex items-center gap-2">
+                <Package className="w-5 h-5" />
+                My purchases
+              </h2>
+              <Link to="/marketplace" className="text-blue-600 hover:text-blue-700 font-medium text-sm flex items-center gap-1">
+                <Store className="w-4 h-4" />
+                Browse more agents
+              </Link>
+            </div>
+            <div className="p-6">
+              {loading ? (
+                <div className="flex items-center justify-center py-12">
+                  <div className="animate-spin rounded-full h-10 w-10 border-2 border-blue-600 border-t-transparent" />
+                </div>
+              ) : customerPurchases.length > 0 ? (
+                <div className="space-y-4">
+                  {customerPurchases.map((p) => (
+                    <div
+                      key={p.id}
+                      className="flex flex-wrap items-center justify-between gap-4 p-4 rounded-xl border border-gray-200 hover:bg-gray-50/50 transition-colors"
+                    >
+                      <div className="min-w-0">
+                        <p className="font-medium text-gray-900">{p.agentName}</p>
+                        <p className="text-sm text-gray-500">
+                          ${typeof p.totalAmount === 'number' ? p.totalAmount.toFixed(2) : (p.price * (p.quantity || 1)).toFixed(2)} · Qty {p.quantity ?? 1} · {new Date(p.purchaseDate).toLocaleDateString()}
+                        </p>
+                      </div>
+                      <div className="flex items-center gap-2 flex-shrink-0">
+                        <Link
+                          to={`/agent/${p.agentId}`}
+                          className="inline-flex items-center gap-1 text-blue-600 hover:text-blue-700 font-medium text-sm"
+                        >
+                          View agent
+                        </Link>
+                        <button
+                          type="button"
+                          onClick={() => handleDownload(p.agentId, p.agentName)}
+                          disabled={downloading === p.agentId}
+                          className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 disabled:opacity-50"
+                        >
+                          {downloading === p.agentId ? (
+                            <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                          ) : (
+                            <Download className="w-4 h-4" />
+                          )}
+                          Download
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center py-12">
+                  <Package className="w-12 h-12 text-gray-300 mx-auto mb-4" />
+                  <p className="text-gray-600 mb-2">You haven&apos;t purchased any agents yet.</p>
+                  <Link to="/marketplace" className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-700 font-medium">
+                    <Store className="w-4 h-4" />
+                    Browse marketplace
+                  </Link>
+                </div>
+              )}
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            <Link
+              to="/marketplace"
+              className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:border-blue-200 hover:shadow-md transition-all flex items-center gap-4"
+            >
+              <div className="w-12 h-12 rounded-lg bg-blue-100 text-blue-600 flex items-center justify-center flex-shrink-0">
+                <Store className="w-6 h-6" />
+              </div>
+              <div>
+                <h3 className="font-semibold text-gray-900">Browse marketplace</h3>
+                <p className="text-sm text-gray-500">Discover AI agents</p>
+              </div>
+            </Link>
+            <Link
+              to="/cart"
+              className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:border-blue-200 hover:shadow-md transition-all flex items-center gap-4"
+            >
+              <div className="w-12 h-12 rounded-lg bg-amber-100 text-amber-600 flex items-center justify-center flex-shrink-0">
+                <ShoppingCart className="w-6 h-6" />
+              </div>
+              <div>
+                <h3 className="font-semibold text-gray-900">Cart</h3>
+                <p className="text-sm text-gray-500">{cartCount} item{cartCount !== 1 ? 's' : ''}</p>
+              </div>
+            </Link>
+            <Link
+              to="/profile"
+              className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:border-blue-200 hover:shadow-md transition-all flex items-center gap-4"
+            >
+              <div className="w-12 h-12 rounded-lg bg-gray-100 text-gray-600 flex items-center justify-center flex-shrink-0">
+                <User className="w-6 h-6" />
+              </div>
+              <div>
+                <h3 className="font-semibold text-gray-900">Profile</h3>
+                <p className="text-sm text-gray-500">Account & purchase history</p>
+              </div>
+            </Link>
+          </div>
+        </div>
+      </div>
+    );
   }
 
   // Loading state

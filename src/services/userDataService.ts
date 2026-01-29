@@ -8,8 +8,10 @@ export interface Purchase {
   agentId: string;
   agentName: string;
   price: number;
+  quantity?: number;
+  totalAmount?: number;
   purchaseDate: string;
-  userId: string;
+  userId?: string;
 }
 
 export interface AgentListing extends Agent {
