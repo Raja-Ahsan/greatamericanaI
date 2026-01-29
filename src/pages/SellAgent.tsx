@@ -48,6 +48,23 @@ const SellAgent = () => {
   const thumbnailInputRef = useRef<HTMLInputElement>(null);
   const galleryInputRef = useRef<HTMLInputElement>(null);
 
+  // Platform display settings (seller commission % – set by admin)
+  const [sellerCommission, setSellerCommission] = useState(85);
+
+  useEffect(() => {
+    const fetchPlatformSettings = async () => {
+      try {
+        const res = await api.get<{ success?: boolean; data?: { sellerCommission?: number } }>('/platform-settings');
+        if (res.success && res.data?.sellerCommission != null) {
+          setSellerCommission(res.data.sellerCommission);
+        }
+      } catch {
+        // keep default 85
+      }
+    };
+    fetchPlatformSettings();
+  }, []);
+
   // Load agent data for editing
   useEffect(() => {
     if (isEditMode && id) {
@@ -461,17 +478,17 @@ const SellAgent = () => {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
           <div className="bg-white p-4 rounded-lg shadow text-center">
             <DollarSign className="w-8 h-8 text-green-600 mx-auto mb-2" />
-            <h3 className="font-semibold">Earn Revenue</h3>
-            <p className="text-sm text-gray-600">Keep 85% of sales</p>
+            <h3 className="font-semibold text-gray-600">Earn Revenue</h3>
+            <p className="text-sm text-gray-600">Keep {sellerCommission}% of sales</p>
           </div>
           <div className="bg-white p-4 rounded-lg shadow text-center">
             <Tag className="w-8 h-8 text-blue-600 mx-auto mb-2" />
-            <h3 className="font-semibold">Reach Customers</h3>
+            <h3 className="font-semibold text-gray-600">Reach Customers</h3>
             <p className="text-sm text-gray-600">10,000+ active buyers</p>
           </div>
           <div className="bg-white p-4 rounded-lg shadow text-center">
             <FileText className="w-8 h-8 text-purple-600 mx-auto mb-2" />
-            <h3 className="font-semibold">Easy Setup</h3>
+            <h3 className="font-semibold text-gray-600">Easy Setup</h3>
             <p className="text-sm text-gray-600">List in minutes</p>
           </div>
         </div>

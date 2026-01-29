@@ -7,7 +7,6 @@ import {
   Check,
   X,
   DollarSign,
-  User,
   AlertCircle,
 } from 'lucide-react';
 import api from '../utils/api';

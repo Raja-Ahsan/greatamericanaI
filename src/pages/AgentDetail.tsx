@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import { Star, ShoppingCart, CheckCircle, Video, Download, Play, Image as ImageIcon } from 'lucide-react';
+import { Star, ShoppingCart, CheckCircle, Download, Play } from 'lucide-react';
 import { useStore } from '../store/useStore';
 import api from '../utils/api';
 import getImageUrl from '../utils/imageUrl';
@@ -123,7 +123,7 @@ const AgentDetail = () => {
   }
 
   // Get all images for gallery (thumbnail + gallery images)
-  const allImages = [];
+  const allImages: string[] = [];
   if (agent.thumbnail_image) {
     allImages.push(getImageUrl(agent.thumbnail_image));
   } else if (agent.image) {

@@ -134,11 +134,12 @@ const AdminProfile = () => {
       }
 
       // Update profile (only if name or email changed, or if avatar was uploaded)
-      const hasChanges = 
-        formData.name !== user.name || 
-        formData.email !== user.email || 
+      const hasChanges = user && (
+        formData.name !== user.name ||
+        formData.email !== user.email ||
         (avatarFile !== null) ||
-        (avatarUrl && avatarUrl !== user.avatar);
+        (avatarUrl && avatarUrl !== user.avatar)
+      );
 
       if (!hasChanges) {
         setError('No changes to save');
@@ -153,7 +154,7 @@ const AdminProfile = () => {
       };
       
       // Only include avatar if it was uploaded or changed
-      if (avatarFile || (avatarUrl && avatarUrl !== user.avatar)) {
+      if (avatarFile || (avatarUrl && user && avatarUrl !== user.avatar)) {
         updatePayload.avatar = avatarUrl;
       }
 
@@ -165,14 +166,15 @@ const AdminProfile = () => {
         setSuccess('Profile updated successfully');
         setAvatarFile(null);
         // Refresh the form data with updated user info from result
-        if (result.user) {
+        const updatedUser = (result as { success: boolean; user?: { name?: string; email?: string; avatar?: string } }).user;
+        if (updatedUser) {
           setFormData({
-            name: result.user.name || '',
-            email: result.user.email || '',
-            avatar: result.user.avatar || '',
+            name: updatedUser.name || '',
+            email: updatedUser.email || '',
+            avatar: updatedUser.avatar || '',
           });
-          if (result.user.avatar) {
-            setAvatarPreview(getImageUrl(result.user.avatar));
+          if (updatedUser.avatar) {
+            setAvatarPreview(getImageUrl(updatedUser.avatar));
           }
         }
         setTimeout(() => setSuccess(''), 3000);

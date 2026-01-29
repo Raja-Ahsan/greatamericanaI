@@ -5,7 +5,7 @@ import { useStore } from '../store/useStore';
 
 const VendorRegister = () => {
   const navigate = useNavigate();
-  const { register, loading: authLoading } = useStore();
+  const { register } = useStore();
   
   const [formData, setFormData] = useState({
     name: '',
@@ -36,12 +36,7 @@ const VendorRegister = () => {
     setLoading(true);
 
     try {
-      const result = await register({
-        name: formData.name,
-        email: formData.email,
-        password: formData.password,
-        role: 'vendor',
-      });
+      const result = await register(formData.name, formData.email, formData.password, 'vendor');
 
       if (result.success) {
         setSuccess('Registration successful! Redirecting to vendor dashboard...');

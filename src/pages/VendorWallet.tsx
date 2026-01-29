@@ -3,7 +3,6 @@ import {
   Wallet as WalletIcon,
   ArrowDownLeft,
   ArrowUpRight,
-  DollarSign,
   RefreshCw,
   Send,
   History,

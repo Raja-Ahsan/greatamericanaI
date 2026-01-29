@@ -3,6 +3,8 @@
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\AgentController;
 use App\Http\Controllers\Api\CartController;
+use App\Http\Controllers\Api\PaymentGatewayController;
+use App\Http\Controllers\Api\PlatformSettingsController;
 use App\Http\Controllers\Api\PurchaseController;
 use App\Http\Controllers\Api\WalletController;
 use App\Http\Controllers\Api\SettingsController;
@@ -15,6 +17,12 @@ Route::post('/login', [AuthController::class, 'login'])->middleware('throttle:5,
 // Public agent routes
 Route::get('/agents', [AgentController::class, 'index']);
 Route::get('/agents/{id}', [AgentController::class, 'show']);
+
+// Public payment gateways list (for checkout; no credentials)
+Route::get('/payment-gateways', [PaymentGatewayController::class, 'index']);
+
+// Public platform display settings (seller commission %, platform fee %, name – set by admin)
+Route::get('/platform-settings', [PlatformSettingsController::class, 'index']);
 
 // Protected routes (require authentication) with rate limiting
 Route::middleware(['auth:sanctum', 'throttle:60,1'])->group(function () { // 60 requests per minute
@@ -90,5 +98,11 @@ Route::middleware(['auth:sanctum', 'throttle:60,1'])->group(function () { // 60 
         Route::get('/wallets/{id}', [\App\Http\Controllers\Admin\WalletController::class, 'show']);
         Route::get('/withdrawals', [\App\Http\Controllers\Admin\WalletController::class, 'withdrawals']);
         Route::patch('/withdrawals/{id}', [\App\Http\Controllers\Admin\WalletController::class, 'updateWithdrawal']);
+
+        // Platform Settings (including Payment Gateways)
+        Route::get('/settings', [\App\Http\Controllers\Admin\SettingsController::class, 'index']);
+        Route::put('/settings/platform', [\App\Http\Controllers\Admin\SettingsController::class, 'updatePlatform']);
+        Route::put('/settings/payment-settings', [\App\Http\Controllers\Admin\SettingsController::class, 'updatePaymentSettings']);
+        Route::post('/settings/gateway-logo', [\App\Http\Controllers\Admin\SettingsController::class, 'uploadGatewayLogo'])->middleware('throttle:60,1');
     });
 });

@@ -157,49 +157,49 @@ class UserDataService {
     }
   }
 
-  // Legacy methods for backward compatibility (now use API)
-  getCart(userId: string): CartItem[] {
-    console.warn('getCart(userId) is deprecated, use async getCart() instead');
+  // Legacy methods for backward compatibility (now use API) – different names to avoid duplicate implementation
+  getCartLegacy(_userId: string): CartItem[] {
+    console.warn('getCartLegacy is deprecated, use async getCart() instead');
     return [];
   }
 
-  saveCart(userId: string, cart: CartItem[]): void {
-    console.warn('saveCart() is deprecated, cart is managed via API');
+  saveCartLegacy(_userId: string, _cart: CartItem[]): void {
+    console.warn('saveCartLegacy is deprecated, cart is managed via API');
   }
 
-  clearCart(userId: string): void {
-    console.warn('clearCart(userId) is deprecated, use async clearCart() instead');
+  clearCartLegacy(_userId: string): void {
+    console.warn('clearCartLegacy is deprecated, use async clearCart() instead');
   }
 
-  getPurchases(userId: string): Purchase[] {
-    console.warn('getPurchases(userId) is deprecated, use async getPurchases() instead');
+  getPurchasesLegacy(_userId: string): Purchase[] {
+    console.warn('getPurchasesLegacy is deprecated, use async getPurchases() instead');
     return [];
   }
 
-  addPurchase(userId: string, purchase: Omit<Purchase, 'id' | 'userId' | 'purchaseDate'>): void {
-    console.warn('addPurchase() is deprecated, purchases are managed via API');
+  addPurchaseLegacy(_userId: string, _purchase: Omit<Purchase, 'id' | 'userId' | 'purchaseDate'>): void {
+    console.warn('addPurchaseLegacy is deprecated, purchases are managed via API');
   }
 
-  getListings(userId: string): AgentListing[] {
-    console.warn('getListings(userId) is deprecated, use async getListings() instead');
+  getListingsLegacy(_userId: string): AgentListing[] {
+    console.warn('getListingsLegacy is deprecated, use async getListings() instead');
     return [];
   }
 
-  addListing(userId: string, agent: Omit<AgentListing, 'id' | 'userId' | 'status' | 'listedDate'>): AgentListing {
-    console.warn('addListing(userId, agent) is deprecated, use async addListing(agentData) instead');
+  addListingLegacy(_userId: string, agent: Omit<AgentListing, 'id' | 'userId' | 'status' | 'listedDate'>): AgentListing {
+    console.warn('addListingLegacy is deprecated, use async addListing(agentData) instead');
     return agent as AgentListing;
   }
 
-  updateListing(userId: string, agentId: string, updates: Partial<AgentListing>): void {
-    console.warn('updateListing(userId, agentId) is deprecated, use async updateListing(agentId, updates) instead');
+  updateListingLegacy(_userId: string, _agentId: string, _updates: Partial<AgentListing>): void {
+    console.warn('updateListingLegacy is deprecated, use async updateListing(agentId, updates) instead');
   }
 
-  deleteListing(userId: string, agentId: string): void {
-    console.warn('deleteListing(userId, agentId) is deprecated, use async deleteListing(agentId) instead');
+  deleteListingLegacy(_userId: string, _agentId: string): void {
+    console.warn('deleteListingLegacy is deprecated, use async deleteListing(agentId) instead');
   }
 
-  getStats(userId: string): UserStats {
-    console.warn('getStats(userId) is deprecated, use async getDashboardStats() instead');
+  getStatsLegacy(_userId: string): UserStats {
+    console.warn('getStatsLegacy is deprecated, use async getDashboardStats() instead');
     return {
       totalSales: 0,
       totalRevenue: 0,
@@ -208,13 +208,13 @@ class UserDataService {
     };
   }
 
-  getSales(userId: string): Array<{ agentId: string; agentName: string; buyer: string; amount: number; date: string }> {
-    console.warn('getSales() is deprecated, use getDashboardStats() instead');
+  getSalesLegacy(_userId: string): Array<{ agentId: string; agentName: string; buyer: string; amount: number; date: string }> {
+    console.warn('getSalesLegacy is deprecated, use getDashboardStats() instead');
     return [];
   }
 
-  addSale(userId: string, sale: { agentId: string; agentName: string; buyer: string; amount: number }): void {
-    console.warn('addSale() is deprecated, sales are managed via API');
+  addSaleLegacy(_userId: string, _sale: { agentId: string; agentName: string; buyer: string; amount: number }): void {
+    console.warn('addSaleLegacy is deprecated, sales are managed via API');
   }
 
   getWishlist(userId: string): string[] {

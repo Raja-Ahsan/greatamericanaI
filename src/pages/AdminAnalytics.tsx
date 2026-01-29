@@ -128,7 +128,7 @@ const AdminAnalytics = () => {
     );
   }
 
-  const { stats, revenue_by_day, top_agents, recent_purchases } = data;
+  const { stats, top_agents, recent_purchases } = data;
 
   return (
     <div className="min-w-0">

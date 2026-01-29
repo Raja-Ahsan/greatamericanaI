@@ -4,7 +4,6 @@ import {
   Package,
   ShoppingBag,
   DollarSign,
-  TrendingUp,
   ArrowUpRight,
   ArrowDownRight,
   Banknote,

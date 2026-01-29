@@ -24,9 +24,9 @@ async function apiRequest<T>(
 ): Promise<T> {
   const token = getToken();
   
-  const headers: HeadersInit = {
+  const headers: Record<string, string> = {
     'Accept': 'application/json',
-    ...options.headers,
+    ...(options.headers as Record<string, string>),
   };
 
   // Only set Content-Type for JSON, not for FormData

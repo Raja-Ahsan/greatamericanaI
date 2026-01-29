@@ -1,11 +1,10 @@
 import { useState, useEffect } from 'react';
-import { 
-  DollarSign, TrendingUp, ShoppingBag, Eye, Users, Package, 
-  CheckCircle, Clock, XCircle, Settings, UserPlus, FileText,
-  BarChart3, Activity, AlertCircle, ArrowUpRight, ArrowDownRight
+import {
+  DollarSign, TrendingUp, ShoppingBag, Eye, Users, Package,
+  CheckCircle, XCircle, UserPlus,
+  BarChart3, ArrowUpRight, ArrowDownRight
 } from 'lucide-react';
 import { useStore } from '../store/useStore';
-import { userDataService } from '../services/userDataService';
 import api from '../utils/api';
 import { Link } from 'react-router-dom';
 
@@ -63,7 +62,7 @@ const Dashboard = () => {
       fetchData();
     }
   }, [user, isAdmin, isVendor]);
-
+  
   if (!user) {
     return null;
   }
@@ -82,7 +81,7 @@ const Dashboard = () => {
 
   // Admin Dashboard (old code - now redirects)
   if (false && isAdmin && adminData) {
-    const stats = adminData.stats;
+    const stats = adminData!.stats;
     
     const statCards = [
       {
@@ -143,7 +142,7 @@ const Dashboard = () => {
             <div className="flex items-center justify-between">
               <div>
                 <h1 className="text-3xl font-bold text-gray-900">Admin Dashboard</h1>
-                <p className="text-gray-600 mt-2">Welcome back, {user.name}!</p>
+                <p className="text-gray-600 mt-2">Welcome back, {user?.name}!</p>
               </div>
               <div className="flex gap-3">
                 <Link
@@ -224,7 +223,7 @@ const Dashboard = () => {
                         Recent Users
                       </h3>
                       <div className="space-y-3">
-                        {adminData.recent_users.slice(0, 5).map((u: any) => (
+                        {(adminData?.recent_users ?? []).slice(0, 5).map((u: any) => (
                           <div key={u.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
                             <div className="flex items-center gap-3">
                               <div className="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center text-white font-semibold">
@@ -254,7 +253,7 @@ const Dashboard = () => {
                         Recent Agents
                       </h3>
                       <div className="space-y-3">
-                        {adminData.recent_agents.slice(0, 5).map((agent: any) => (
+                        {(adminData?.recent_agents ?? []).slice(0, 5).map((agent: any) => (
                           <div key={agent.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
                             <div className="flex items-center gap-3">
                               <div className="w-12 h-12 bg-gray-200 rounded-lg flex items-center justify-center">
@@ -295,7 +294,7 @@ const Dashboard = () => {
                           </tr>
                         </thead>
                         <tbody>
-                          {adminData.recent_purchases.slice(0, 10).map((purchase: any) => (
+                          {(adminData?.recent_purchases ?? []).slice(0, 10).map((purchase: any) => (
                             <tr key={purchase.id} className="border-b hover:bg-gray-50">
                               <td className="py-3 px-4">{purchase.agent_name}</td>
                               <td className="py-3 px-4">{purchase.user?.email || 'N/A'}</td>
@@ -337,7 +336,7 @@ const Dashboard = () => {
                         </tr>
                       </thead>
                       <tbody>
-                        {adminData.recent_users.map((u: any) => (
+                        {(adminData?.recent_users ?? []).map((u: any) => (
                           <tr key={u.id} className="border-b hover:bg-gray-50">
                             <td className="py-3 px-4 font-medium">{u.name}</td>
                             <td className="py-3 px-4">{u.email}</td>
@@ -394,7 +393,7 @@ const Dashboard = () => {
                         </tr>
                       </thead>
                       <tbody>
-                        {adminData.recent_agents.map((agent: any) => (
+                        {(adminData?.recent_agents ?? []).map((agent: any) => (
                           <tr key={agent.id} className="border-b hover:bg-gray-50">
                             <td className="py-3 px-4 font-medium">{agent.name}</td>
                             <td className="py-3 px-4">{agent.seller?.name || 'Unknown'}</td>
@@ -445,7 +444,7 @@ const Dashboard = () => {
                         </tr>
                       </thead>
                       <tbody>
-                        {adminData.recent_purchases.map((purchase: any) => (
+                        {(adminData?.recent_purchases ?? []).map((purchase: any) => (
                           <tr key={purchase.id} className="border-b hover:bg-gray-50">
                             <td className="py-3 px-4">{purchase.agent_name}</td>
                             <td className="py-3 px-4">{purchase.user?.email || 'N/A'}</td>
@@ -471,119 +470,119 @@ const Dashboard = () => {
   // Vendor Dashboard (fallback to original)
   if (isVendor && vendorData) {
     const stats = vendorData.stats;
-    
-    const statsDisplay = [
-      { 
-        label: 'Total Revenue', 
-        value: `$${stats.totalRevenue.toFixed(2)}`, 
-        icon: DollarSign, 
-        color: 'bg-green-100 text-green-600' 
-      },
-      { 
-        label: 'Active Listings', 
-        value: stats.activeListings.toString(), 
-        icon: ShoppingBag, 
-        color: 'bg-blue-100 text-blue-600' 
-      },
-      { 
-        label: 'Total Sales', 
-        value: stats.totalSales.toString(), 
-        icon: TrendingUp, 
-        color: 'bg-orange-100 text-orange-600' 
-      },
-      { 
-        label: 'Total Views', 
-        value: stats.totalViews.toString(), 
-        icon: Eye, 
-        color: 'bg-purple-100 text-purple-600' 
-      },
-    ];
 
-    return (
-      <div className="min-h-screen bg-gray-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <div className="mb-8">
-            <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
-            <p className="text-gray-600 mt-2">Welcome back, {user.name}!</p>
-          </div>
+  const statsDisplay = [
+    { 
+      label: 'Total Revenue', 
+      value: `$${stats.totalRevenue.toFixed(2)}`, 
+      icon: DollarSign, 
+      color: 'bg-green-100 text-green-600' 
+    },
+    { 
+      label: 'Active Listings', 
+      value: stats.activeListings.toString(), 
+      icon: ShoppingBag, 
+      color: 'bg-blue-100 text-blue-600' 
+    },
+    { 
+      label: 'Total Sales', 
+      value: stats.totalSales.toString(), 
+      icon: TrendingUp, 
+      color: 'bg-orange-100 text-orange-600' 
+    },
+    { 
+      label: 'Total Views', 
+      value: stats.totalViews.toString(), 
+      icon: Eye, 
+      color: 'bg-purple-100 text-purple-600' 
+    },
+  ];
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-            {statsDisplay.map((stat, index) => (
-              <div key={index} className="bg-white rounded-lg shadow-md p-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm text-gray-600 mb-1">{stat.label}</p>
-                    <p className="text-2xl font-bold text-gray-900">{stat.value}</p>
-                  </div>
-                  <div className={`w-12 h-12 rounded-lg ${stat.color} flex items-center justify-center`}>
-                    <stat.icon className="w-6 h-6" />
-                  </div>
+  return (
+    <div className="min-h-screen bg-gray-50">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
+          <p className="text-gray-600 mt-2">Welcome back, {user.name}!</p>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+          {statsDisplay.map((stat, index) => (
+            <div key={index} className="bg-white rounded-lg shadow-md p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-gray-600 mb-1">{stat.label}</p>
+                  <p className="text-2xl font-bold text-gray-900">{stat.value}</p>
+                </div>
+                <div className={`w-12 h-12 rounded-lg ${stat.color} flex items-center justify-center`}>
+                  <stat.icon className="w-6 h-6" />
                 </div>
               </div>
-            ))}
-          </div>
+            </div>
+          ))}
+        </div>
 
-          <div className="bg-white rounded-lg shadow-md p-6 mb-8">
-            <h2 className="text-xl font-semibold text-gray-900 mb-4">Recent Sales</h2>
+        <div className="bg-white rounded-lg shadow-md p-6 mb-8">
+          <h2 className="text-xl font-semibold text-gray-900 mb-4">Recent Sales</h2>
             {vendorData.recentSales && vendorData.recentSales.length > 0 ? (
-              <div className="overflow-x-auto">
-                <table className="w-full">
-                  <thead>
-                    <tr className="border-b">
-                      <th className="text-left py-3 px-4 text-sm font-medium text-gray-700">Agent</th>
-                      <th className="text-left py-3 px-4 text-sm font-medium text-gray-700">Buyer</th>
-                      <th className="text-left py-3 px-4 text-sm font-medium text-gray-700">Amount</th>
-                      <th className="text-left py-3 px-4 text-sm font-medium text-gray-700">Date</th>
-                    </tr>
-                  </thead>
-                  <tbody>
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead>
+                  <tr className="border-b">
+                    <th className="text-left py-3 px-4 text-sm font-medium text-gray-700">Agent</th>
+                    <th className="text-left py-3 px-4 text-sm font-medium text-gray-700">Buyer</th>
+                    <th className="text-left py-3 px-4 text-sm font-medium text-gray-700">Amount</th>
+                    <th className="text-left py-3 px-4 text-sm font-medium text-gray-700">Date</th>
+                  </tr>
+                </thead>
+                <tbody>
                     {vendorData.recentSales.map((sale: any, index: number) => (
-                      <tr key={index} className="border-b hover:bg-gray-50">
-                        <td className="py-3 px-4">{sale.agentName}</td>
-                        <td className="py-3 px-4">{sale.buyer}</td>
-                        <td className="py-3 px-4 font-semibold">${sale.amount.toFixed(2)}</td>
-                        <td className="py-3 px-4 text-gray-600">
-                          {new Date(sale.date).toLocaleDateString()}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            ) : (
-              <div className="text-center py-8">
-                <p className="text-gray-500">No sales yet</p>
-              </div>
-            )}
-          </div>
+                    <tr key={index} className="border-b hover:bg-gray-50">
+                      <td className="py-3 px-4">{sale.agentName}</td>
+                      <td className="py-3 px-4">{sale.buyer}</td>
+                      <td className="py-3 px-4 font-semibold">${sale.amount.toFixed(2)}</td>
+                      <td className="py-3 px-4 text-gray-600">
+                        {new Date(sale.date).toLocaleDateString()}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          ) : (
+            <div className="text-center py-8">
+              <p className="text-gray-500">No sales yet</p>
+            </div>
+          )}
+        </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <Link
               to="/sell"
               className="bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg shadow-md p-6 text-white hover:shadow-lg transition-shadow"
             >
-              <h3 className="text-xl font-semibold mb-2">List a New Agent</h3>
-              <p className="mb-4 text-blue-100">
-                Share your AI agent with thousands of potential customers
-              </p>
+            <h3 className="text-xl font-semibold mb-2">List a New Agent</h3>
+            <p className="mb-4 text-blue-100">
+              Share your AI agent with thousands of potential customers
+            </p>
               <span className="inline-block bg-white text-blue-600 px-6 py-2 rounded-lg font-semibold hover:bg-gray-100 transition-colors">
-                Get Started
+              Get Started
               </span>
             </Link>
 
-            <div className="bg-white rounded-lg shadow-md p-6">
-              <h3 className="text-xl font-semibold text-gray-900 mb-2">Your Listings</h3>
-              <p className="text-gray-600 mb-4">
-                Manage your AI agents and view performance metrics
-              </p>
-              <button className="bg-blue-600 text-white px-6 py-2 rounded-lg font-semibold hover:bg-blue-700 transition-colors">
-                View Listings
-              </button>
-            </div>
+          <div className="bg-white rounded-lg shadow-md p-6">
+            <h3 className="text-xl font-semibold text-gray-900 mb-2">Your Listings</h3>
+            <p className="text-gray-600 mb-4">
+              Manage your AI agents and view performance metrics
+            </p>
+            <button className="bg-blue-600 text-white px-6 py-2 rounded-lg font-semibold hover:bg-blue-700 transition-colors">
+              View Listings
+            </button>
           </div>
         </div>
       </div>
-    );
+    </div>
+  );
   }
 
   // Loading state

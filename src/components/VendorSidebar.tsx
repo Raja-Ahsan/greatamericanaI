@@ -3,7 +3,6 @@ import {
   LayoutDashboard,
   Package,
   ShoppingBag,
-  DollarSign,
   BarChart3,
   Settings,
   LogOut,

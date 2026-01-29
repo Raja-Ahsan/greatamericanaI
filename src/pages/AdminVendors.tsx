@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Users, Search, CheckCircle, XCircle, Edit, Trash2, Eye, X, Save, Mail, Calendar, Store } from 'lucide-react';
+import { Search, CheckCircle, XCircle, Edit, Trash2, Eye, X, Save, Mail, Calendar, Store } from 'lucide-react';
 import { useStore } from '../store/useStore';
 import api from '../utils/api';
 

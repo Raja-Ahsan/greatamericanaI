@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { ShoppingBag, Search, Download } from 'lucide-react';
+import { Search, Download } from 'lucide-react';
 import api from '../utils/api';
 
 interface Purchase {

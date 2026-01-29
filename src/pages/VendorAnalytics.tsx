@@ -56,6 +56,13 @@ const VendorAnalytics = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [period, setPeriod] = useState<'7' | '30'>('7');
+  const [sellerCommission, setSellerCommission] = useState(85);
+
+  useEffect(() => {
+    api.get<{ success?: boolean; data?: { sellerCommission?: number } }>('/platform-settings').then((res) => {
+      if (res.success && res.data?.sellerCommission != null) setSellerCommission(res.data.sellerCommission);
+    }).catch(() => {});
+  }, []);
 
   const fetchAnalytics = async () => {
     setLoading(true);
@@ -120,7 +127,7 @@ const VendorAnalytics = () => {
     );
   }
 
-  const { stats, revenue_by_day, top_agents, recent_sales } = data;
+  const { stats, top_agents, recent_sales } = data;
 
   return (
     <div>
@@ -153,7 +160,7 @@ const VendorAnalytics = () => {
               <DollarSign className="w-6 h-6 text-green-600" />
             </div>
           </div>
-          <p className="text-xs text-gray-500 mt-2">85% of sales (after platform fee)</p>
+          <p className="text-xs text-gray-500 mt-2">{sellerCommission}% of sales (after platform fee)</p>
         </div>
         <div className="bg-white rounded-lg shadow-md p-6">
           <div className="flex items-center justify-between">

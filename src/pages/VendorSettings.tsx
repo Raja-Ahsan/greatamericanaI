@@ -91,7 +91,7 @@ const VendorSettings = () => {
       const res = await api.get<{ success: boolean; data: VendorSettingsData | Record<string, never> }>('/settings');
       if (res.success && res.data && Object.keys(res.data).length > 0) {
         const parsed = res.data as VendorSettingsData;
-        setSettings((prev) => ({
+        setSettings((_prev) => ({
           ...defaultSettings,
           ...parsed,
           notifications: { ...defaultSettings.notifications, ...(parsed.notifications || {}) },

@@ -1,7 +1,7 @@
-import { useState } from 'react';
-import { User, Mail, Calendar, Edit2, Save } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { User, Mail, Calendar, Edit2, Save, Download } from 'lucide-react';
 import { useStore } from '../store/useStore';
-import { userDataService } from '../services/userDataService';
+import api from '../utils/api';
 
 const Profile = () => {
   const { user, updateProfile } = useStore();

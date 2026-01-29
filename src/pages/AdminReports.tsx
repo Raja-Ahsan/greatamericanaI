@@ -1,4 +1,4 @@
-import { FileText, Download, Calendar } from 'lucide-react';
+import { FileText, Download } from 'lucide-react';
 
 const AdminReports = () => {
   return (

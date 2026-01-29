@@ -3,14 +3,11 @@ import {
   Package,
   DollarSign,
   ShoppingBag,
-  TrendingUp,
   Eye,
   CheckCircle,
   Clock,
-  XCircle,
   PlusCircle,
   ArrowUpRight,
-  Activity
 } from 'lucide-react';
 import api from '../utils/api';
 import { Link } from 'react-router-dom';

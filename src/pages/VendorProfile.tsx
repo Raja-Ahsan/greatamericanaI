@@ -126,11 +126,12 @@ const VendorProfile = () => {
         }
       }
 
-      const hasChanges = 
-        formData.name !== user.name || 
-        formData.email !== user.email || 
+      const hasChanges = user && (
+        formData.name !== user.name ||
+        formData.email !== user.email ||
         (avatarFile !== null) ||
-        (avatarUrl && avatarUrl !== user.avatar);
+        (avatarUrl && avatarUrl !== user.avatar)
+      );
 
       if (!hasChanges) {
         setError('No changes to save');
@@ -143,7 +144,7 @@ const VendorProfile = () => {
         email: formData.email,
       };
       
-      if (avatarFile || (avatarUrl && avatarUrl !== user.avatar)) {
+      if (avatarFile || (avatarUrl && user && avatarUrl !== user.avatar)) {
         updatePayload.avatar = avatarUrl;
       }
 
@@ -154,14 +155,15 @@ const VendorProfile = () => {
       if (result.success) {
         setSuccess('Profile updated successfully');
         setAvatarFile(null);
-        if (result.user) {
+        const updatedUser = (result as { success: boolean; user?: { name?: string; email?: string; avatar?: string } }).user;
+        if (updatedUser) {
           setFormData({
-            name: result.user.name || '',
-            email: result.user.email || '',
-            avatar: result.user.avatar || '',
+            name: updatedUser.name || '',
+            email: updatedUser.email || '',
+            avatar: updatedUser.avatar || '',
           });
-          if (result.user.avatar) {
-            setAvatarPreview(getImageUrl(result.user.avatar));
+          if (updatedUser.avatar) {
+            setAvatarPreview(getImageUrl(updatedUser.avatar));
           }
         }
         setTimeout(() => setSuccess(''), 3000);

@@ -11,9 +11,9 @@ interface Store {
   
   // Auth actions
   login: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
-  register: (name: string, email: string, password: string) => Promise<{ success: boolean; error?: string }>;
+  register: (name: string, email: string, password: string, role?: 'admin' | 'vendor' | 'customer') => Promise<{ success: boolean; error?: string }>;
   logout: () => Promise<void>;
-  updateProfile: (updates: Partial<User>) => Promise<{ success: boolean; error?: string }>;
+  updateProfile: (updates: Partial<User>) => Promise<{ success: boolean; error?: string; user?: User }>;
   checkAuth: () => Promise<void>;
   
   // Cart actions
@@ -94,10 +94,10 @@ export const useStore = create<Store>((set, get) => ({
   },
 
   // Register
-  register: async (name: string, email: string, password: string) => {
+  register: async (name: string, email: string, password: string, role?: 'admin' | 'vendor' | 'customer') => {
     set({ loading: true });
     try {
-      const result = await authService.register({ name, email, password });
+      const result = await authService.register({ name, email, password, role });
       
       if (result.success && result.user) {
         set({ user: result.user, isAuthenticated: true });
